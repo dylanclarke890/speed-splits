@@ -6,6 +6,7 @@ export default function TimerControls({
   onStart,
   onPauseResume,
   onReset,
+  onSplit,
 }) {
   const startButton = (
     <div className="btn btn-one btn-start" onClick={onStart}>
@@ -14,12 +15,17 @@ export default function TimerControls({
   );
   const activeButtons = (
     <div className="btn-grp">
-      <button className="btn btn-two" onClick={onReset}>
+      <button className="btn" onClick={onReset}>
         Reset
       </button>
-      <button className="btn btn-one" onClick={onPauseResume}>
+      <button className="btn" onClick={onPauseResume}>
         {paused ? "Resume" : "Pause"}
       </button>
+      {!paused ? (
+        <button className="btn" onClick={onSplit}>
+          Split
+        </button>
+      ) : null}
     </div>
   );
 
