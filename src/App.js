@@ -1,10 +1,11 @@
 import Timer from "./components/Timer/Timer";
 import "./styles/utilities.css";
+import "./styles/custom-styles.css";
 
 function App() {
   return (
     <>
-      <div className="text-center">Speed Splits</div>
+      <h1 className="text-center">Speed Splits</h1>
       <Timer />
     </>
   );
