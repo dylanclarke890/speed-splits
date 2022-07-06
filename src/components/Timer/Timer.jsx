@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
+import SplitTimesDisplay from "./SplitTimesDisplay";
 import TimerControls from "./TimerControls";
 import TimerDisplay from "./TimerDisplay";
 
@@ -8,6 +9,7 @@ export default function Timer() {
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [time, setTime] = useState(0);
+  const [segmentedTimes, setSegmentedTimes] = useState([]);
 
   useEffect(() => {
     let interval = null;
@@ -34,7 +36,13 @@ export default function Timer() {
 
   const handleReset = () => {
     setIsActive(false);
+    setIsPaused(true);
     setTime(0);
+    setSegmentedTimes([]);
+  };
+
+  const handleSplit = () => {
+    setSegmentedTimes((times) => [...times, time]);
   };
 
   return (
@@ -46,7 +54,9 @@ export default function Timer() {
         onStart={handleStart}
         onPauseResume={handlePauseResume}
         onReset={handleReset}
+        onSplit={handleSplit}
       />
+      <SplitTimesDisplay times={segmentedTimes} />
     </>
   );
 }
