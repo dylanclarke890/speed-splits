@@ -1,4 +1,5 @@
 import React from "react";
+import "./TimerControls.css";
 
 export default function TimerControls({
   active,
@@ -9,28 +10,28 @@ export default function TimerControls({
   onSplit,
 }) {
   const startButton = (
-    <div className="btn btn-one btn-start" onClick={onStart}>
+    <button className="btn btn-red" onClick={onStart}>
       Start
-    </div>
+    </button>
   );
   const activeButtons = (
-    <div className="btn-grp">
+    <div>
       <button className="btn" onClick={onReset}>
         Reset
-      </button>
-      <button className="btn" onClick={onPauseResume}>
-        {paused ? "Resume" : "Pause"}
       </button>
       {!paused ? (
         <button className="btn" onClick={onSplit}>
           Split
         </button>
       ) : null}
+      <button className="btn btn-red" onClick={onPauseResume}>
+        {paused ? "Resume" : "Pause"}
+      </button>
     </div>
   );
 
   return (
-    <div>
+    <div className="timer-controls d-flex justify-center mt-1">
       <div>{active ? activeButtons : startButton}</div>
     </div>
   );
