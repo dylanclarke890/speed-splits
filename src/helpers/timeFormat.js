@@ -1,7 +1,7 @@
 export function formatTime(time, format) {
   switch (format) {
     case "hour":
-      return calculateTime(time, 60000, 0);
+      return calculateTime(time, 3600000, 0);
     case "min":
       return calculateTime(time, 60000, 60);
     case "sec":
