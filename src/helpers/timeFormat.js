@@ -14,6 +14,7 @@ export function formatTime(time, format) {
 }
 
 function calculateTime(time, divisor, mod) {
+  if (time === 0) return "00";
   const divideResult = time / divisor;
   const result = Math.floor(mod > 0 ? divideResult % mod : divideResult);
   return ("0" + result).slice(-2);
