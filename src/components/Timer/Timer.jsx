@@ -2,9 +2,24 @@ import React from "react";
 import { useState } from "react";
 import { useCallback } from "react";
 import { useEffect } from "react";
+import {
+  addToStorage,
+  getFromStorage,
+  removeFromStorage,
+} from "../../helpers/storage";
 import SplitTimesDisplay from "./SplitTimesDisplay/SplitTimesDisplay";
 import TimerControls from "./TimerControls/TimerControls";
 import TimerDisplay from "./TimerDisplay/TimerDisplay";
+
+const CURR_TIME = "currentTime";
+const IS_RUNNING = "isRunning";
+const SEGMENTS = "segments";
+
+const clearLocalStorage = () => {
+  removeFromStorage(CURR_TIME);
+  removeFromStorage(IS_RUNNING);
+  removeFromStorage(SEGMENTS);
+};
 
 export default function Timer() {
   const [isActive, setIsActive] = useState(false);
@@ -15,12 +30,12 @@ export default function Timer() {
   const handleStart = () => {
     setIsActive(true);
     setIsPaused(false);
-    localStorage.setItem("isRunning", true);
+    addToStorage(IS_RUNNING, true);
   };
 
   const handlePauseResume = useCallback(() => {
     setIsPaused((curr) => {
-      localStorage.setItem("isRunning", curr);
+      addToStorage(IS_RUNNING, curr);
       return !curr;
     });
     if (!isActive) setIsActive(true);
@@ -31,15 +46,13 @@ export default function Timer() {
     setIsPaused(true);
     setTime(0);
     setSegmentedTimes([]);
-    localStorage.removeItem("currentTime");
-    localStorage.removeItem("isRunning");
-    localStorage.removeItem("segments");
+    clearLocalStorage();
   };
 
   const handleSplit = useCallback(() => {
     setSegmentedTimes((times) => {
       const newSegments = [...times, time];
-      localStorage.setItem("segments", JSON.stringify(newSegments));
+      addToStorage(SEGMENTS, newSegments, true);
       return newSegments;
     });
   }, [time]);
@@ -73,10 +86,10 @@ export default function Timer() {
   );
 
   useEffect(() => {
-    const storedTime = localStorage.getItem("currentTime");
+    const storedTime = getFromStorage(CURR_TIME);
     setTime(storedTime ? parseInt(storedTime) : 0);
-    setSegmentedTimes(() => JSON.parse(localStorage.getItem("segments")) ?? []);
-    const running = JSON.parse(localStorage.getItem("isRunning"));
+    setSegmentedTimes(() => getFromStorage(SEGMENTS, true) ?? []);
+    const running = getFromStorage(IS_RUNNING, true);
     setIsPaused(!running);
     setIsActive(running);
     window.addEventListener("keydown", handleKeyPress);
@@ -91,7 +104,7 @@ export default function Timer() {
       interval = setInterval(() => {
         setTime((time) => {
           time += 10;
-          localStorage.setItem("currentTime", time);
+          addToStorage(CURR_TIME, time);
           return time;
         });
       }, 10);
