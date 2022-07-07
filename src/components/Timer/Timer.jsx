@@ -61,6 +61,7 @@ export default function Timer() {
         case " ":
         case "S":
         case "s":
+          if (isActive && isPaused) handlePauseResume();
           if (isActive) handleSplit();
           else handleStart();
           break;
@@ -68,7 +69,7 @@ export default function Timer() {
           break;
       }
     },
-    [handlePauseResume, handleSplit, isActive]
+    [handlePauseResume, handleSplit, isActive, isPaused]
   );
 
   useEffect(() => {
