@@ -6,7 +6,7 @@ export default function SplitTimesDisplay({ times }) {
     <>
       <div className="split-times">
         {times.map((t) => (
-          <TimerDisplay time={t} small/>
+          <TimerDisplay time={t} small key={t} />
         ))}
       </div>
     </>
