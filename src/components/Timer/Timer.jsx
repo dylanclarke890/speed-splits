@@ -12,10 +12,22 @@ export default function Timer() {
   const [segmentedTimes, setSegmentedTimes] = useState([]);
 
   useEffect(() => {
+    setTime(parseInt(localStorage.getItem("currentTime")) ?? 0);
+    setSegmentedTimes(() => JSON.parse(localStorage.getItem("segments")) ?? []);
+    const running = JSON.parse(localStorage.getItem("isRunning"));
+    setIsPaused(!running);
+    setIsActive(running);
+  }, []);
+
+  useEffect(() => {
     let interval = null;
     if (isActive && !isPaused) {
       interval = setInterval(() => {
-        setTime((time) => time + 10);
+        setTime((time) => {
+          time += 10;
+          localStorage.setItem("currentTime", time);
+          return time;
+        });
       }, 10);
     } else {
       clearInterval(interval);
@@ -28,10 +40,15 @@ export default function Timer() {
   const handleStart = () => {
     setIsActive(true);
     setIsPaused(false);
+    localStorage.setItem("isRunning", true);
   };
 
   const handlePauseResume = () => {
-    setIsPaused(!isPaused);
+    setIsPaused((curr) => {
+      localStorage.setItem("isRunning", curr);
+      return !curr;
+    });
+    if (!isActive) setIsActive(true);
   };
 
   const handleReset = () => {
@@ -39,10 +56,17 @@ export default function Timer() {
     setIsPaused(true);
     setTime(0);
     setSegmentedTimes([]);
+    localStorage.removeItem("currentTime");
+    localStorage.removeItem("isRunning");
+    localStorage.removeItem("segments");
   };
 
   const handleSplit = () => {
-    setSegmentedTimes((times) => [...times, time]);
+    setSegmentedTimes((times) => {
+      const newSegments = [...times, time];
+      localStorage.setItem("segments", JSON.stringify(newSegments));
+      return newSegments;
+    });
   };
 
   return (
@@ -50,7 +74,7 @@ export default function Timer() {
       <div>
         <TimerDisplay time={time} />
         <TimerControls
-          active={isActive}
+          active={isActive || time > 0}
           paused={isPaused}
           onStart={handleStart}
           onPauseResume={handlePauseResume}
