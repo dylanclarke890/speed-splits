@@ -1,41 +1,38 @@
 import React from "react";
-import { useState } from "react";
-import { useCallback } from "react";
-import { useEffect } from "react";
-import {
-  addToStorage,
-  getFromStorage,
-  removeFromStorage,
-} from "../../helpers/storage";
-import SplitTimesDisplay from "./SplitTimesDisplay/SplitTimesDisplay";
-import TimerControls from "./TimerControls/TimerControls";
-import TimerDisplay from "./TimerDisplay/TimerDisplay";
+import { useState, useCallback, useEffect } from "react";
+import GlobalEvents from "../../helpers/GlobalEvents";
+import Storage from "../../helpers/Storage";
+import SegmentsList from "./SegmentsList/SegmentsDisplay";
+import SplitTimerControls from "./SplitTimerControls/SplitTimerControls";
+import TimeDisplay from "./TimeDisplay/TimeDisplay";
 
-const CURR_TIME = "currentTime";
-const IS_RUNNING = "isRunning";
-const SEGMENTS = "segments";
-
+const timerKeys = {
+  CURR_TIME: "currentTime",
+  IS_RUNNING: "isRunning",
+  SEGMENTS: "segments",
+};
 const clearLocalStorage = () => {
-  removeFromStorage(CURR_TIME);
-  removeFromStorage(IS_RUNNING);
-  removeFromStorage(SEGMENTS);
+  Storage.Delete(timerKeys.CURR_TIME);
+  Storage.Delete(timerKeys.IS_RUNNING);
+  Storage.Delete(timerKeys.SEGMENTS);
 };
 
-export default function Timer() {
+export default function SplitTimer() {
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  // const [currentSegment, setCurrentSegment] = useState(0);
+  const [segmentedTimes, setSegmentedTimes] = useState([]); // use list of dicts here
   const [time, setTime] = useState(0);
-  const [segmentedTimes, setSegmentedTimes] = useState([]);
 
   const handleStart = () => {
     setIsActive(true);
     setIsPaused(false);
-    addToStorage(IS_RUNNING, true);
+    Storage.AddOrUpdate(timerKeys.IS_RUNNING, true);
   };
 
   const handlePauseResume = useCallback(() => {
     setIsPaused((curr) => {
-      addToStorage(IS_RUNNING, curr);
+      Storage.AddOrUpdate(timerKeys.IS_RUNNING, curr);
       return !curr;
     });
     if (!isActive) setIsActive(true);
@@ -52,12 +49,12 @@ export default function Timer() {
   const handleSplit = useCallback(() => {
     setSegmentedTimes((times) => {
       const newSegments = [...times, time];
-      addToStorage(SEGMENTS, newSegments, true);
+      Storage.AddOrUpdate(timerKeys.SEGMENTS, newSegments, true);
       return newSegments;
     });
   }, [time]);
 
-  const handleKeyPress = useCallback(
+  const handleShortcutPress = useCallback(
     (e) => {
       switch (e.key) {
         case "Enter":
@@ -75,7 +72,7 @@ export default function Timer() {
         case "S":
         case "s":
           if (isActive && isPaused) handlePauseResume();
-          if (isActive) handleSplit();
+          if (isActive && !isPaused) handleSplit();
           else handleStart();
           break;
         default:
@@ -85,32 +82,32 @@ export default function Timer() {
     [handlePauseResume, handleSplit, isActive, isPaused]
   );
 
+  // On mount
   useEffect(() => {
-    const storedTime = getFromStorage(CURR_TIME);
+    const storedTime = Storage.Get(timerKeys.CURR_TIME);
     setTime(storedTime ? parseInt(storedTime) : 0);
-    setSegmentedTimes(() => getFromStorage(SEGMENTS, true) ?? []);
-    const running = getFromStorage(IS_RUNNING, true);
+    setSegmentedTimes(() => Storage.Get(timerKeys.SEGMENTS, true) ?? []);
+    const running = Storage.Get(timerKeys.IS_RUNNING, true);
     setIsPaused(!running);
     setIsActive(running);
-    window.addEventListener("keydown", handleKeyPress);
+    GlobalEvents.Add("keydown", handleShortcutPress);
     return () => {
-      window.removeEventListener("keydown", handleKeyPress);
+      GlobalEvents.Remove("keydown", handleShortcutPress);
     };
-  }, [handleKeyPress]);
+  }, [handleShortcutPress]);
 
+  // On change to isActive/isPaused
   useEffect(() => {
     let interval = null;
-    if (isActive && !isPaused) {
+    if (isActive && !isPaused)
       interval = setInterval(() => {
         setTime((time) => {
           time += 10;
-          addToStorage(CURR_TIME, time);
+          Storage.AddOrUpdate(timerKeys.CURR_TIME, time);
           return time;
         });
       }, 10);
-    } else {
-      clearInterval(interval);
-    }
+    else clearInterval(interval);
     return () => {
       clearInterval(interval);
     };
@@ -119,8 +116,8 @@ export default function Timer() {
   return (
     <>
       <div>
-        <TimerDisplay time={time} />
-        <TimerControls
+        <TimeDisplay time={time} />
+        <SplitTimerControls
           active={isActive || time > 0}
           paused={isPaused}
           onStart={handleStart}
@@ -128,7 +125,7 @@ export default function Timer() {
           onReset={handleReset}
           onSplit={handleSplit}
         />
-        <SplitTimesDisplay times={segmentedTimes} />
+        <SegmentsList times={segmentedTimes} />
       </div>
     </>
   );

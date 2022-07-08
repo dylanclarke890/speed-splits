@@ -1,7 +1,7 @@
 import React from "react";
-import "./TimerControls.css";
+import "./SplitTimerControls.css";
 
-export default function TimerControls({
+export default function SplitTimerControls({
   active,
   paused,
   onStart,
