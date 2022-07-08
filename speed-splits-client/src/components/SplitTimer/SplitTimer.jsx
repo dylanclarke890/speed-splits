@@ -2,9 +2,9 @@ import React from "react";
 import { useState, useCallback, useEffect } from "react";
 import GlobalEvents from "../../helpers/GlobalEvents";
 import Storage from "../../helpers/Storage";
-import SplitTimesDisplay from "./SplitTimesDisplay/SplitTimesDisplay";
-import TimerControls from "./TimerControls/TimerControls";
-import TimerDisplay from "./TimerDisplay/TimerDisplay";
+import SegmentsList from "./SegmentsList/SegmentsDisplay";
+import SplitTimerControls from "./SplitTimerControls/SplitTimerControls";
+import TimeDisplay from "./TimeDisplay/TimeDisplay";
 
 const timerKeys = {
   CURR_TIME: "currentTime",
@@ -17,7 +17,7 @@ const clearLocalStorage = () => {
   Storage.Delete(timerKeys.SEGMENTS);
 };
 
-export default function Timer() {
+export default function SplitTimer() {
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   // const [currentSegment, setCurrentSegment] = useState(0);
@@ -116,8 +116,8 @@ export default function Timer() {
   return (
     <>
       <div>
-        <TimerDisplay time={time} />
-        <TimerControls
+        <TimeDisplay time={time} />
+        <SplitTimerControls
           active={isActive || time > 0}
           paused={isPaused}
           onStart={handleStart}
@@ -125,7 +125,7 @@ export default function Timer() {
           onReset={handleReset}
           onSplit={handleSplit}
         />
-        <SplitTimesDisplay times={segmentedTimes} />
+        <SegmentsList times={segmentedTimes} />
       </div>
     </>
   );
