@@ -1,6 +1,12 @@
 import React from "react";
 import "./SplitTimerControls.css";
 
+const ControlButton = ({ name, isMain, onClick }) => (
+  <button className={isMain ? "btn btn-red" : "btn"} onClick={onClick}>
+    {name}
+  </button>
+);
+
 export default function SplitTimerControls({
   active,
   paused,
@@ -8,26 +14,20 @@ export default function SplitTimerControls({
   onPauseResume,
   onReset,
   onSplit,
+  onStop,
 }) {
-  const startButton = (
-    <button className="btn btn-red" onClick={onStart}>
-      Start
-    </button>
-  );
+  const startButton = <ControlButton name="Start" onClick={onStart} isMain />;
   const activeButtons = (
-    <div>
-      <button className="btn" onClick={onReset}>
-        Reset
-      </button>
-      {!paused ? (
-        <button className="btn" onClick={onSplit}>
-          Split
-        </button>
-      ) : null}
-      <button className="btn btn-red" onClick={onPauseResume}>
-        {paused ? "Resume" : "Pause"}
-      </button>
-    </div>
+    <>
+      <ControlButton name="Reset" onClick={onReset} />
+      {paused ? null : <ControlButton name="Split" onClick={onSplit} />}
+      <ControlButton
+        name={paused ? "Resume" : "Pause"}
+        onClick={onPauseResume}
+        isMain
+      />
+      <ControlButton name="Stop" onClick={onStop} isMain />
+    </>
   );
 
   return (

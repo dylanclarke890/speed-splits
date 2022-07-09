@@ -11,6 +11,7 @@ const timerKeys = {
   IS_RUNNING: "isRunning",
   SEGMENTS: "segments",
 };
+
 const clearLocalStorage = () => {
   Storage.Delete(timerKeys.CURR_TIME);
   Storage.Delete(timerKeys.IS_RUNNING);
@@ -34,8 +35,7 @@ export default function SplitTimer() {
       Storage.AddOrUpdate(timerKeys.IS_RUNNING, curr);
       return !curr;
     });
-    if (!isActive) setIsActive(true);
-  }, [isActive]);
+  }, []);
 
   const handleReset = () => {
     setIsActive(false);
@@ -62,7 +62,6 @@ export default function SplitTimer() {
           if (isActive) handlePauseResume();
           else handleStart();
           break;
-        case "Escape":
         case "R":
         case "r":
           handleReset();
@@ -74,12 +73,21 @@ export default function SplitTimer() {
           if (isActive && !isPaused) handleSplit();
           else handleStart();
           break;
+        case "Escape":
+          handleStop();
+          break;
         default:
           break;
       }
     },
     [handlePauseResume, handleSplit, isActive, isPaused]
   );
+
+  const handleStop = () => {
+    setIsActive(false);
+    setIsPaused(true);
+    Storage.AddOrUpdate(timerKeys.IS_RUNNING, false);
+  };
 
   useEffect(() => {
     const storedTime = Storage.Get(timerKeys.CURR_TIME);
@@ -97,16 +105,13 @@ export default function SplitTimer() {
   useEffect(() => {
     let timerInterval = null;
     if (isActive && !isPaused) {
-      timerInterval = setInterval(
-        () => {
-          setTime((time) => {
-            time += document.hidden ? 1000 : 10; // account for page throttling
-            Storage.AddOrUpdate(timerKeys.CURR_TIME, time);
-            return time;
-          });
-        },
-        document.hidden ? 1000 : 10
-      );
+      timerInterval = setInterval(() => {
+        setTime((time) => {
+          time += document.hidden ? 1000 : 10; // account for page throttling
+          Storage.AddOrUpdate(timerKeys.CURR_TIME, time);
+          return time;
+        });
+      }, 10);
     } else clearInterval(timerInterval);
     return () => {
       clearInterval(timerInterval);
@@ -122,8 +127,9 @@ export default function SplitTimer() {
           paused={isPaused}
           onStart={handleStart}
           onPauseResume={handlePauseResume}
-          onReset={handleReset}
           onSplit={handleSplit}
+          onReset={handleReset}
+          onStop={handleStop}
         />
         <SegmentsList times={segmentedTimes} />
       </div>
