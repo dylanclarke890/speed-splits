@@ -2,26 +2,38 @@ import React from "react";
 import { useState, useCallback, useEffect } from "react";
 import GlobalEvents from "../../helpers/GlobalEvents";
 import Storage from "../../helpers/Storage";
-import SegmentsList from "./SegmentsList/SegmentsList";
+import SegmentsList from "../Segments/SegmentsList/SegmentsList";
 import SplitTimerControls from "./SplitTimerControls/SplitTimerControls";
-import TimeDisplay from "./TimeDisplay/TimeDisplay";
+import TimeDisplay from "../Shared/TimeDisplay/TimeDisplay";
+import Segment from "../../models/Segment";
 
 const timerKeys = {
   CURR_TIME: "currentTime",
   IS_RUNNING: "isRunning",
   SEGMENTS: "segments",
+  CURRENT_SEGMENT: "currentSegment",
 };
 
 const clearLocalStorage = () => {
   Storage.Delete(timerKeys.CURR_TIME);
   Storage.Delete(timerKeys.IS_RUNNING);
   Storage.Delete(timerKeys.SEGMENTS);
+  Storage.Delete(timerKeys.CURRENT_SEGMENT);
 };
+
+const segments = [
+  new Segment("Start", null, 0),
+  new Segment("First", null, 1),
+  new Segment("Second", null, 2),
+  new Segment("Third", null, 3),
+  new Segment("", null, 4),
+];
 
 export default function SplitTimer() {
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [segmentedTimes, setSegmentedTimes] = useState([]);
+  const [segmentedTimes, setSegmentedTimes] = useState(segments); // TODO: Change this
+  const [currentSegment, setCurrentSegment] = useState(0);
   const [time, setTime] = useState(0);
 
   const handleStart = () => {
@@ -46,12 +58,23 @@ export default function SplitTimer() {
   };
 
   const handleSplit = useCallback(() => {
-    setSegmentedTimes((times) => {
-      const newSegments = [...times, time];
-      Storage.AddOrUpdate(timerKeys.SEGMENTS, newSegments, true);
-      return newSegments;
+    if (currentSegment >= segmentedTimes.length) {
+      handleStop();
+      return;
+    }
+    setSegmentedTimes((segments) => {
+      const update = segments;
+      const item = update.find((seg) => seg.order === currentSegment);
+      item.time = time;
+      Storage.AddOrUpdate(timerKeys.SEGMENTS, segments, true);
+      return update;
     });
-  }, [time]);
+    setCurrentSegment((curr) => {
+      const newVal = curr + 1;
+      Storage.AddOrUpdate(timerKeys.CURRENT_SEGMENT, newVal);
+      return newVal;
+    });
+  }, [time, currentSegment, segmentedTimes.length]);
 
   const handleShortcutPress = useCallback(
     (e) => {
@@ -90,9 +113,9 @@ export default function SplitTimer() {
   };
 
   useEffect(() => {
-    const storedTime = Storage.Get(timerKeys.CURR_TIME);
-    setTime(storedTime ? parseInt(storedTime) : 0);
-    setSegmentedTimes(() => Storage.Get(timerKeys.SEGMENTS, true) ?? []);
+    setTime(() => Storage.Get(timerKeys.CURR_TIME, true) || 0);
+    setSegmentedTimes(() => Storage.Get(timerKeys.SEGMENTS, true) || segments); // TODO: Change this
+    setCurrentSegment(() => Storage.Get(timerKeys.CURRENT_SEGMENT, true) || 0);
     const running = Storage.Get(timerKeys.IS_RUNNING, true);
     setIsPaused(!running);
     setIsActive(running);
@@ -131,7 +154,7 @@ export default function SplitTimer() {
           onReset={handleReset}
           onStop={handleStop}
         />
-        <SegmentsList times={segmentedTimes} />
+        <SegmentsList segments={segmentedTimes} />
       </div>
     </>
   );
