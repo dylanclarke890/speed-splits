@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useCallback, useEffect } from "react";
 import GlobalEvents from "../../helpers/GlobalEvents";
 import Storage from "../../helpers/Storage";
-import SegmentsList from "./SegmentsList/SegmentsDisplay";
+import SegmentsList from "./SegmentsList/SegmentsList";
 import SplitTimerControls from "./SplitTimerControls/SplitTimerControls";
 import TimeDisplay from "./TimeDisplay/TimeDisplay";
 
