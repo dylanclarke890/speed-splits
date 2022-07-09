@@ -1,5 +1,5 @@
 export default class Time {
-  static formatTime(time, format) {
+  static toString(time, format) {
     switch (format) {
       case "hour":
         return Time.calculateTime(time, 3600000, 0);
