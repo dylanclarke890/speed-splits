@@ -20,8 +20,7 @@ const clearLocalStorage = () => {
 export default function SplitTimer() {
   const [isActive, setIsActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  // const [currentSegment, setCurrentSegment] = useState(0);
-  const [segmentedTimes, setSegmentedTimes] = useState([]); // use list of dicts here
+  const [segmentedTimes, setSegmentedTimes] = useState([]);
   const [time, setTime] = useState(0);
 
   const handleStart = () => {
@@ -82,7 +81,6 @@ export default function SplitTimer() {
     [handlePauseResume, handleSplit, isActive, isPaused]
   );
 
-  // On mount
   useEffect(() => {
     const storedTime = Storage.Get(timerKeys.CURR_TIME);
     setTime(storedTime ? parseInt(storedTime) : 0);
@@ -96,20 +94,22 @@ export default function SplitTimer() {
     };
   }, [handleShortcutPress]);
 
-  // On change to isActive/isPaused
   useEffect(() => {
-    let interval = null;
-    if (isActive && !isPaused)
-      interval = setInterval(() => {
-        setTime((time) => {
-          time += 10;
-          Storage.AddOrUpdate(timerKeys.CURR_TIME, time);
-          return time;
-        });
-      }, 10);
-    else clearInterval(interval);
+    let timerInterval = null;
+    if (isActive && !isPaused) {
+      timerInterval = setInterval(
+        () => {
+          setTime((time) => {
+            time += document.hidden ? 1000 : 10; // account for page throttling
+            Storage.AddOrUpdate(timerKeys.CURR_TIME, time);
+            return time;
+          });
+        },
+        document.hidden ? 1000 : 10
+      );
+    } else clearInterval(timerInterval);
     return () => {
-      clearInterval(interval);
+      clearInterval(timerInterval);
     };
   }, [isActive, isPaused]);
 
