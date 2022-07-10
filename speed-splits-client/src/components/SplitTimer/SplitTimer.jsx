@@ -58,6 +58,7 @@ export default function SplitTimer() {
       curr.forEach((i) => (i.time = null));
       return curr;
     });
+    setCurrentSegment(0);
     clearLocalStorage();
   };
 
@@ -93,7 +94,7 @@ export default function SplitTimer() {
       Storage.AddOrUpdate(timerKeys.CURRENT_SEGMENT, newVal);
       return newVal;
     });
-  }, []);
+  }, [currentSegment, segmentedTimes]);
 
   const handleShortcutPress = useCallback(
     (e) => {
