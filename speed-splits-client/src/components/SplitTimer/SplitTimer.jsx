@@ -6,6 +6,7 @@ import SegmentsList from "../Segments/SegmentsList/SegmentsList";
 import SplitTimerControls from "./SplitTimerControls/SplitTimerControls";
 import TimeDisplay from "../Shared/TimeDisplay/TimeDisplay";
 import Segment from "../../models/Segment";
+import { useInit } from "../../custom-hooks/onInit";
 
 const timerKeys = {
   CURR_TIME: "currentTime",
@@ -53,7 +54,10 @@ export default function SplitTimer() {
     setIsActive(false);
     setIsPaused(true);
     setTime(0);
-    setSegmentedTimes([]);
+    setSegmentedTimes((curr) => {
+      curr.forEach((i) => (i.time = null));
+      return curr;
+    });
     clearLocalStorage();
   };
 
@@ -76,7 +80,7 @@ export default function SplitTimer() {
     });
   }, [time, currentSegment, segmentedTimes.length]);
 
-  const handleUndoSplit = () => {
+  const handleUndoSplit = useCallback(() => {
     if (segmentedTimes.find((s) => s.time !== null) === undefined) return;
     setSegmentedTimes((segs) => {
       const items = segs;
@@ -89,7 +93,7 @@ export default function SplitTimer() {
       Storage.AddOrUpdate(timerKeys.CURRENT_SEGMENT, newVal);
       return newVal;
     });
-  };
+  }, []);
 
   const handleShortcutPress = useCallback(
     (e) => {
@@ -111,6 +115,10 @@ export default function SplitTimer() {
           if (isActive && !isPaused) handleSplit();
           else handleStart();
           break;
+        case "u":
+        case "U":
+          handleUndoSplit();
+          break;
         case "Escape":
           handleStop();
           break;
@@ -118,7 +126,7 @@ export default function SplitTimer() {
           break;
       }
     },
-    [handlePauseResume, handleSplit, isActive, isPaused]
+    [isActive, isPaused, handleUndoSplit, handlePauseResume, handleSplit]
   );
 
   const handleStop = () => {
@@ -127,7 +135,7 @@ export default function SplitTimer() {
     Storage.AddOrUpdate(timerKeys.IS_RUNNING, false);
   };
 
-  useEffect(() => {
+  useInit(() => {
     setTime(() => Storage.Get(timerKeys.CURR_TIME, true) || 0);
     setSegmentedTimes(() => Storage.Get(timerKeys.SEGMENTS, true) || segments); // TODO: Change this
     setCurrentSegment(() => Storage.Get(timerKeys.CURRENT_SEGMENT, true) || 0);
@@ -138,7 +146,7 @@ export default function SplitTimer() {
     return () => {
       GlobalEvents.Remove("keydown", handleShortcutPress);
     };
-  }, [handleShortcutPress]);
+  });
 
   useEffect(() => {
     let timerInterval = null;
