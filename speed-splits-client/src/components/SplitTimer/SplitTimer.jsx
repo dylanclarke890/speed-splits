@@ -76,6 +76,21 @@ export default function SplitTimer() {
     });
   }, [time, currentSegment, segmentedTimes.length]);
 
+  const handleUndoSplit = () => {
+    if (segmentedTimes.find((s) => s.time !== null) === undefined) return;
+    setSegmentedTimes((segs) => {
+      const items = segs;
+      segs.find((s) => s.order === currentSegment - 1).time = null;
+      Storage.AddOrUpdate(timerKeys.SEGMENTS, items, true);
+      return items;
+    });
+    setCurrentSegment((curr) => {
+      const newVal = curr - 1;
+      Storage.AddOrUpdate(timerKeys.CURRENT_SEGMENT, newVal);
+      return newVal;
+    });
+  };
+
   const handleShortcutPress = useCallback(
     (e) => {
       switch (e.key) {
@@ -151,6 +166,7 @@ export default function SplitTimer() {
           onStart={handleStart}
           onPauseResume={handlePauseResume}
           onSplit={handleSplit}
+          onUndo={handleUndoSplit}
           onReset={handleReset}
           onStop={handleStop}
         />

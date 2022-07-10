@@ -14,28 +14,42 @@ export default function SplitTimerControls({
   onPauseResume,
   onReset,
   onSplit,
+  onUndo,
   onStop,
 }) {
-  const start = <ControlButton name="Start" onClick={onStart} isMain />;
-  const stop = <ControlButton name="Stop" onClick={onStop} isMain />;
-  const reset = <ControlButton name="Reset" onClick={onReset} />;
-  const split = <ControlButton name="Split" onClick={onSplit} />;
-  const pauseResume = (
-    <ControlButton
-      name={paused ? "Resume" : "Pause"}
-      onClick={onPauseResume}
-      isMain
-    />
-  );
+  const buttons = {
+    start: { name: "Start", onClick: onStart, isMain: true },
+    stop: { name: "Stop", onClick: onStop, isMain: true },
+    reset: { name: "Reset", onClick: onReset, isMain: false },
+    split: { name: "Split", onClick: onSplit, isMain: false },
+    undo: { name: "Undo", onClick: onUndo, isMain: false },
+    pauseResume: {
+      name: paused ? "Resume" : "Pause",
+      onClick: onPauseResume,
+      isMain: true,
+    },
+  };
 
-  const buttons = [];
-  if (paused && !active) buttons.push(start);
-  if (paused && active) buttons.push([pauseResume, stop, reset]);
-  if (!paused && active) buttons.push([pauseResume, split]);
-
+  const activeButtons = [];
+  if (paused && !active) activeButtons.push(buttons.start);
+  if (paused && active)
+    activeButtons.push(buttons.pauseResume, buttons.stop, buttons.reset);
+  if (!paused && active)
+    activeButtons.push(buttons.pauseResume, buttons.split, buttons.undo);
   return (
     <div className="timer-controls d-flex justify-center mt-1">
-      <div>{buttons}</div>
+      <div>
+        {activeButtons.map((btn) => {
+          return (
+            <ControlButton
+              name={btn.name}
+              key={btn.name}
+              onClick={btn.onClick}
+              isMain={btn.isMain}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
