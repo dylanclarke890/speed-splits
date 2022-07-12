@@ -9,11 +9,13 @@ export const timerActions = {
   STOP: "stop",
 };
 
-export const timerStorageKeys = {
+export const storageKeys = {
   CURRENT_SPLIT: "currentSplit",
   CURRENT_TIME: "currentTime",
   SPLITS: "splits",
   STATUS: "status",
+  TIMESTAMP_REF: "timestampRef",
+  RECORDED_TIMES: "recordedTimes",
 };
 
 export const timerStatus = {

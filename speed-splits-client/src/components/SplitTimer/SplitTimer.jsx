@@ -14,55 +14,48 @@ export default function SplitTimer() {
     splits: [],
     currentSplit: 0,
     time: 0,
+    timestampRef: 0,
+    recordedTimes: [],
   });
 
-  const start = () => {
-    dispatch({ type: timerActions.START });
-  };
-  const tick = () => {
-    dispatch({ type: timerActions.TICK });
-  };
-  const pauseResume = () => {
-    dispatch({ type: timerActions.PAUSE_RESUME });
-  };
-  const split = () => {
-    dispatch({ type: timerActions.SPLIT });
-  };
-  const undo = () => {
-    dispatch({ type: timerActions.UNDO });
-  };
-  const reset = () => {
-    dispatch({ type: timerActions.RESET });
-  };
-  const stop = () => {
-    dispatch({ type: timerActions.STOP });
-  };
-  const shortcutPress = (e) => {
+  const start = () => dispatch({ type: timerActions.START }),
+    tick = () => dispatch({ type: timerActions.TICK }),
+    pauseResume = () => dispatch({ type: timerActions.PAUSE_RESUME }),
+    split = () => dispatch({ type: timerActions.SPLIT }),
+    undo = () => dispatch({ type: timerActions.UNDO }),
+    reset = () => dispatch({ type: timerActions.RESET }),
+    stop = () => dispatch({ type: timerActions.STOP });
+
+  const timerShortcutPress = (e) => {
     switch (e.key.toUpperCase()) {
       case "ENTER":
-      case "P":
-        if (
-          tState.status === timerStatus.RUNNING ||
-          tState.status === timerStatus.RUNNING
-        )
+      case "P": {
+        const status = tState.status;
+        if (status === timerStatus.RUNNING || status === timerStatus.PAUSED)
           pauseResume();
         else start();
         break;
-      case "R":
+      }
+      case "R": {
         reset();
         break;
+      }
       case " ":
-      case "S":
-        if (tState.status === timerStatus.PAUSED) pauseResume();
-        if (tState.status === timerStatus.RUNNING) split();
+      case "S": {
+        const status = tState.status;
+        if (status === timerStatus.PAUSED) pauseResume();
+        if (status === timerStatus.RUNNING) split();
         else start();
         break;
-      case "U":
+      }
+      case "U": {
         undo();
         break;
-      case "ESCAPE":
+      }
+      case "ESCAPE": {
         stop();
         break;
+      }
       default:
         break;
     }
@@ -70,21 +63,21 @@ export default function SplitTimer() {
 
   useOnInit(() => {
     dispatch({ type: timerActions.INITIALIZE });
-    GlobalEvents.Add("keydown", shortcutPress);
+    GlobalEvents.Add("keydown", timerShortcutPress);
     return () => {
-      GlobalEvents.Remove("keydown", shortcutPress);
+      GlobalEvents.Remove("keydown", timerShortcutPress);
     };
   });
 
   useEffect(() => {
-    let timerInterval = null;
-    if (tState.status === timerStatus.RUNNING) {
-      timerInterval = setInterval(() => {
+    let interval = null;
+    if (tState.status === timerStatus.RUNNING)
+      interval = setInterval(() => {
         tick();
       }, 10);
-    } else clearInterval(timerInterval);
+    else clearInterval(interval);
     return () => {
-      clearInterval(timerInterval);
+      clearInterval(interval);
     };
   }, [tState.status]);
 

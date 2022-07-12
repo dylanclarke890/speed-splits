@@ -11,4 +11,8 @@ export default class Storage {
   static Delete(name) {
     localStorage.removeItem(name);
   }
+
+  static DeleteAll(obj) {
+    for (const key in obj) Storage.Delete(key);
+  }
 }
