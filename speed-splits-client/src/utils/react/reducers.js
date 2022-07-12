@@ -1,5 +1,7 @@
 import { timerActions, timerStorageKeys, Split } from "../../models/core";
+import { ReducerError } from "../errors";
 import Storage from "../Storage";
+
 const mockSplits = [
   new Split("Start", null, 0),
   new Split("First", null, 1),
@@ -105,10 +107,3 @@ export const timerStateReducer = (state, timerAction) => {
   }
   return newState;
 };
-
-class ReducerError extends Error {
-  constructor(action) {
-    super(`Didn't recognise action: ${action}.`);
-    this.name = "ReducerError";
-  }
-}
