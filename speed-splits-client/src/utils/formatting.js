@@ -1,4 +1,4 @@
-export default class Time {
+export class Time {
   static toString(time, format) {
     switch (format) {
       case "hour":

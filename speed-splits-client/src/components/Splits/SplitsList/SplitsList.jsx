@@ -1,14 +1,14 @@
 import React from "react";
-import SegmentDisplay from "../SegmentDisplay/SegmentDisplay";
+import SplitDisplay from "../SplitDisplay/SplitDisplay";
 
-export default function SegmentsList({ segments }) {
+export default function SplitsList({ splits }) {
   return (
     <>
       <div className="split-times">
-        {segments
+        {splits
           .sort((a, b) => a.order - b.order)
           .map((s) => (
-            <SegmentDisplay segment={s} key={s.order} />
+            <SplitDisplay split={s} key={s.order} />
           ))}
       </div>
     </>

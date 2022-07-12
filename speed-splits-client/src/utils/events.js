@@ -1,4 +1,4 @@
-export default class GlobalEvents {
+export class GlobalEvents {
   static Add(eventName, handler) {
     window.addEventListener(eventName, handler);
   }
