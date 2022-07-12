@@ -1,10 +1,11 @@
 import {
   timerActions,
-  timerStorageKeys,
+  storageKeys,
   Split,
   timerStatus,
 } from "../../models/core";
 import { ReducerError } from "../errors";
+import { Time } from "../formatting";
 import Storage from "../Storage";
 
 const mockSplits = [
@@ -15,63 +16,92 @@ const mockSplits = [
   new Split("", null, 4),
 ];
 
-export const timerStateReducer = (state, timerAction) => {
+export const timerStateReducer = (state, action) => {
   let newState;
-  switch (timerAction.type) {
+  switch (action.type) {
     case timerActions.INITIALIZE: {
-      const currentTime = Storage.Get(timerStorageKeys.CURRENT_TIME, true) || 0;
-      const splits = Storage.Get(timerStorageKeys.SPLITS, true) || mockSplits; // TODO: Change this
-      const currentSplit =
-        Storage.Get(timerStorageKeys.CURRENT_SPLIT, true) || 0;
-      const status =
-        Storage.Get(timerStorageKeys.STATUS) || timerStatus.INITIAL;
+      const currentSplit = Storage.Get(storageKeys.CURRENT_SPLIT, true) || 0,
+        splits = Storage.Get(storageKeys.SPLITS, true) || mockSplits,
+        status = Storage.Get(storageKeys.STATUS) || timerStatus.INITIAL,
+        time = Storage.Get(storageKeys.CURRENT_TIME, true) || 0,
+        timestampRef = Storage.Get(storageKeys.TIMESTAMP_REF, true) || 0,
+        recordedTimes = Storage.Get(storageKeys.RECORDED_TIMES, true) || [];
       newState = {
-        time: currentTime,
-        splits: splits,
-        currentSplit: currentSplit,
-        status: status,
+        time,
+        splits,
+        currentSplit,
+        status,
+        timestampRef,
+        recordedTimes,
       };
       break;
     }
     case timerActions.START: {
-      newState = { ...state, status: timerStatus.RUNNING };
-      Storage.AddOrUpdate(timerStorageKeys.STATUS);
+      const status = timerStatus.RUNNING;
+      const timestampRef = Time.now();
+      newState = {
+        ...state,
+        status,
+        timestampRef,
+      };
+      Storage.AddOrUpdate(storageKeys.STATUS, status);
+      Storage.AddOrUpdate(storageKeys.TIMESTAMP_REF, timestampRef);
       break;
     }
     case timerActions.TICK: {
-      // account for page throttling
-      const interval = document.hidden ? 1000 : 10;
-      const newTime = state.time + interval;
-      newState = { ...state, time: newTime };
-      Storage.AddOrUpdate(timerStorageKeys.CURRENT_TIME, newTime);
+      const msSinceRef = Time.now() - state.timestampRef;
+      const time = msSinceRef + state.recordedTimes.reduce((a, b) => a + b, 0);
+      newState = { ...state, time };
+      Storage.AddOrUpdate(storageKeys.CURRENT_TIME, time);
       break;
     }
     case timerActions.PAUSE_RESUME: {
-      const newStatus =
-        state.status === timerStatus.PAUSED
-          ? timerStatus.RUNNING
-          : timerStatus.PAUSED;
-      newState = { ...state, status: newStatus };
-      Storage.AddOrUpdate(timerStorageKeys.STATUS, newState);
+      let status;
+      if (state.status === timerStatus.RUNNING) {
+        status = timerStatus.PAUSED;
+        newState = {
+          ...state,
+          status,
+          recordedTimes: [
+            ...state.recordedTimes,
+            Time.now() - state.timestampRef,
+          ],
+        };
+        Storage.AddOrUpdate(
+          storageKeys.RECORDED_TIMES,
+          newState.recordedTimes,
+          true
+        );
+      }
+      if (state.status === timerStatus.PAUSED) {
+        status = timerStatus.RUNNING;
+        newState = {
+          ...state,
+          status,
+          timestampRef: Time.now(),
+        };
+        Storage.AddOrUpdate(storageKeys.TIMESTAMP_REF, newState.timestampRef);
+      }
+      Storage.AddOrUpdate(storageKeys.STATUS, status);
       break;
     }
     case timerActions.SPLIT: {
       if (state.currentSplit >= state.splits.length) {
         newState = { ...state, status: timerStatus.STOPPED };
-        Storage.AddOrUpdate(timerStorageKeys.STATUS);
+        Storage.AddOrUpdate(storageKeys.STATUS);
         break;
       }
-      const newSplits = state.splits;
-      const splitToAdd = newSplits.find((s) => s.order === state.currentSplit);
+      const splits = state.splits;
+      const splitToAdd = splits.find((s) => s.order === state.currentSplit);
       splitToAdd.time = state.time;
-      const nextCurrSplitVal = state.currentSplit + 1;
+      const currentSplit = state.currentSplit + 1;
       newState = {
         ...state,
-        splits: newSplits,
-        currentSplit: nextCurrSplitVal,
+        splits,
+        currentSplit,
       };
-      Storage.AddOrUpdate(timerStorageKeys.SPLITS, newSplits, true);
-      Storage.AddOrUpdate(timerStorageKeys.CURRENT_SPLIT, nextCurrSplitVal);
+      Storage.AddOrUpdate(storageKeys.SPLITS, splits, true);
+      Storage.AddOrUpdate(storageKeys.CURRENT_SPLIT, currentSplit);
       break;
     }
     case timerActions.UNDO: {
@@ -79,19 +109,19 @@ export const timerStateReducer = (state, timerAction) => {
         newState = state;
         break;
       }
-      const newSplits = state.splits;
-      const splitToRemove = newSplits.find(
+      const splits = state.splits;
+      const splitToRemove = splits.find(
         (s) => s.order === state.currentSplit - 1
       );
       splitToRemove.time = null;
-      const prevCurrSplitVal = state.currentSplit - 1;
+      const currentSplit = state.currentSplit - 1;
       newState = {
         ...state,
-        splits: newSplits,
-        currentSplit: prevCurrSplitVal,
+        splits,
+        currentSplit,
       };
-      Storage.AddOrUpdate(timerStorageKeys.SPLITS, newSplits, true);
-      Storage.AddOrUpdate(timerStorageKeys.CURRENT_SPLIT, prevCurrSplitVal);
+      Storage.AddOrUpdate(storageKeys.SPLITS, splits, true);
+      Storage.AddOrUpdate(storageKeys.CURRENT_SPLIT, currentSplit);
       break;
     }
     case timerActions.RESET: {
@@ -100,20 +130,19 @@ export const timerStateReducer = (state, timerAction) => {
         time: 0,
         splits: state.splits.map((s) => ({ ...s, time: null })),
         currentSplit: 0,
+        timestampRef: 0,
+        recordedTimes: [],
       };
-      Storage.Delete(timerStorageKeys.CURRENT_TIME);
-      Storage.Delete(timerStorageKeys.STATUS);
-      Storage.Delete(timerStorageKeys.SPLITS);
-      Storage.Delete(timerStorageKeys.CURRENT_SPLIT);
+      Storage.DeleteAll(storageKeys);
       break;
     }
     case timerActions.STOP: {
       newState = { ...state, status: timerStatus.STOPPED };
-      Storage.AddOrUpdate(timerStorageKeys.STATUS);
+      Storage.AddOrUpdate(storageKeys.STATUS);
       break;
     }
     default:
-      throw new ReducerError(timerAction.type);
+      throw new ReducerError(action.type);
   }
   return newState;
 };
