@@ -10,10 +10,17 @@ export const timerActions = {
 };
 
 export const timerStorageKeys = {
-  IS_ACTIVE: "isActive",
-  CURRENT_TIME: "currentTime",
   CURRENT_SPLIT: "currentSplit",
+  CURRENT_TIME: "currentTime",
   SPLITS: "splits",
+  STATUS: "status",
+};
+
+export const timerStatus = {
+  INITIAL: "initial",
+  RUNNING: "running",
+  PAUSED: "paused",
+  STOPPED: "stopped",
 };
 
 export class Split {
