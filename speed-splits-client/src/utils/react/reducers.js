@@ -1,4 +1,9 @@
-import { timerActions, timerStorageKeys, Split } from "../../models/core";
+import {
+  timerActions,
+  timerStorageKeys,
+  Split,
+  timerStatus,
+} from "../../models/core";
 import { ReducerError } from "../errors";
 import Storage from "../Storage";
 
@@ -18,36 +23,42 @@ export const timerStateReducer = (state, timerAction) => {
       const splits = Storage.Get(timerStorageKeys.SPLITS, true) || mockSplits; // TODO: Change this
       const currentSplit =
         Storage.Get(timerStorageKeys.CURRENT_SPLIT, true) || 0;
-      const isActive = Storage.Get(timerStorageKeys.IS_ACTIVE, true);
+      const status =
+        Storage.Get(timerStorageKeys.STATUS) || timerStatus.INITIAL;
       newState = {
         time: currentTime,
         splits: splits,
         currentSplit: currentSplit,
-        isActive: isActive,
-        isPaused: !isActive,
+        status: status,
       };
       break;
     }
     case timerActions.START: {
-      newState = { ...state, isActive: true, isPaused: false };
-      Storage.AddOrUpdate(timerStorageKeys.IS_ACTIVE, true);
+      newState = { ...state, status: timerStatus.RUNNING };
+      Storage.AddOrUpdate(timerStorageKeys.STATUS);
       break;
     }
     case timerActions.TICK: {
-      const newTime = state.time + (document.hidden ? 1000 : 10); // account for page throttling
+      // account for page throttling
+      const interval = document.hidden ? 1000 : 10;
+      const newTime = state.time + interval;
       newState = { ...state, time: newTime };
       Storage.AddOrUpdate(timerStorageKeys.CURRENT_TIME, newTime);
       break;
     }
     case timerActions.PAUSE_RESUME: {
-      newState = { ...state, isPaused: !state.isPaused };
-      Storage.AddOrUpdate(timerStorageKeys.IS_ACTIVE, state.isPaused);
+      const newStatus =
+        state.status === timerStatus.PAUSED
+          ? timerStatus.RUNNING
+          : timerStatus.PAUSED;
+      newState = { ...state, status: newStatus };
+      Storage.AddOrUpdate(timerStorageKeys.STATUS, newState);
       break;
     }
     case timerActions.SPLIT: {
       if (state.currentSplit >= state.splits.length) {
-        newState = { ...state, isActive: false, isPaused: true };
-        Storage.AddOrUpdate(timerStorageKeys.IS_ACTIVE, false);
+        newState = { ...state, status: timerStatus.STOPPED };
+        Storage.AddOrUpdate(timerStorageKeys.STATUS);
         break;
       }
       const newSplits = state.splits;
@@ -85,21 +96,20 @@ export const timerStateReducer = (state, timerAction) => {
     }
     case timerActions.RESET: {
       newState = {
-        isPaused: true,
-        isActive: false,
+        status: timerStatus.INITIAL,
         time: 0,
         splits: state.splits.map((s) => ({ ...s, time: null })),
         currentSplit: 0,
       };
       Storage.Delete(timerStorageKeys.CURRENT_TIME);
-      Storage.Delete(timerStorageKeys.IS_ACTIVE);
+      Storage.Delete(timerStorageKeys.STATUS);
       Storage.Delete(timerStorageKeys.SPLITS);
       Storage.Delete(timerStorageKeys.CURRENT_SPLIT);
       break;
     }
     case timerActions.STOP: {
-      newState = { ...state, isActive: false, isPaused: true };
-      Storage.AddOrUpdate(timerStorageKeys.IS_ACTIVE, false);
+      newState = { ...state, status: timerStatus.STOPPED };
+      Storage.AddOrUpdate(timerStorageKeys.STATUS);
       break;
     }
     default:

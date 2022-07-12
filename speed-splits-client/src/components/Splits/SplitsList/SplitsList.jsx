@@ -1,5 +1,6 @@
 import React from "react";
 import SplitDisplay from "../SplitDisplay/SplitDisplay";
+import "./SplitsList.css";
 
 export default function SplitsList({ splits }) {
   return (

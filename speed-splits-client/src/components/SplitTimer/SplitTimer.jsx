@@ -1,6 +1,6 @@
 import React from "react";
 import { useReducer, useEffect } from "react";
-import { timerActions } from "../../models/core";
+import { timerActions, timerStatus } from "../../models/core";
 import { GlobalEvents } from "../../utils/events";
 import { useOnInit } from "../../utils/react/custom-hooks";
 import { timerStateReducer } from "../../utils/react/reducers";
@@ -10,8 +10,7 @@ import TimeDisplay from "../Shared/TimeDisplay/TimeDisplay";
 
 export default function SplitTimer() {
   const [tState, dispatch] = useReducer(timerStateReducer, {
-    isActive: false,
-    isPaused: false,
+    status: timerStatus.INITIAL,
     splits: [],
     currentSplit: 0,
     time: 0,
@@ -42,7 +41,11 @@ export default function SplitTimer() {
     switch (e.key.toUpperCase()) {
       case "ENTER":
       case "P":
-        if (tState.isActive) pauseResume();
+        if (
+          tState.status === timerStatus.RUNNING ||
+          tState.status === timerStatus.RUNNING
+        )
+          pauseResume();
         else start();
         break;
       case "R":
@@ -50,8 +53,8 @@ export default function SplitTimer() {
         break;
       case " ":
       case "S":
-        if (tState.isActive && tState.isPaused) pauseResume();
-        if (tState.isActive && !tState.isPaused) split();
+        if (tState.status === timerStatus.PAUSED) pauseResume();
+        if (tState.status === timerStatus.RUNNING) split();
         else start();
         break;
       case "U":
@@ -75,7 +78,7 @@ export default function SplitTimer() {
 
   useEffect(() => {
     let timerInterval = null;
-    if (tState.isActive && !tState.isPaused) {
+    if (tState.status === timerStatus.RUNNING) {
       timerInterval = setInterval(() => {
         tick();
       }, 10);
@@ -83,15 +86,14 @@ export default function SplitTimer() {
     return () => {
       clearInterval(timerInterval);
     };
-  }, [tState.isActive, tState.isPaused]);
+  }, [tState.status]);
 
   return (
     <>
       <div>
         <TimeDisplay time={tState.time} />
         <SplitTimerControls
-          active={tState.isActive || tState.time > 0}
-          paused={tState.isPaused}
+          status={tState.status}
           onStart={start}
           onPauseResume={pauseResume}
           onSplit={split}
