@@ -16,6 +16,7 @@ export const storageKeys = {
   STATUS: "status",
   TIMESTAMP_REF: "timestampRef",
   RECORDED_TIMES: "recordedTimes",
+  ERROR_LOG: "errorLog",
 };
 
 export const timerStatus = {
@@ -30,5 +31,13 @@ export class Split {
     this.title = title || order;
     this.time = time;
     this.order = order;
+  }
+}
+
+export class ErrorLog {
+  constructor(name, message, callStack) {
+    this.name = name;
+    this.message = message;
+    this.callStack = callStack;
   }
 }
