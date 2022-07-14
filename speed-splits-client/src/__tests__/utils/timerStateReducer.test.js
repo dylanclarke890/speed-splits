@@ -66,6 +66,20 @@ test("tick action increments time", () => {
   expect(actual.time).toBeGreaterThan(0);
 });
 
+test("split action stops timer if current split is eq/gr than the amount of splits", () => {
+  const args = {
+    splits: [new Split("", null, 0), new Split("", null, 1)],
+    currentSplit: 2,
+    status: timerStatus.RUNNING,
+  };
+  const expected = {
+    ...args,
+    status: timerStatus.STOPPED,
+  };
+  const actual = timerStateReducer(args, { type: timerActions.SPLIT });
+  expect(actual).toEqual(expected);
+});
+
 test("split action adds time to expected split and increments current split", () => {
   const args = {
     splits: [new Split("", 1000, 0), new Split("", null, 1)],
@@ -79,6 +93,15 @@ test("split action adds time to expected split and increments current split", ()
   };
   const actual = timerStateReducer(args, { type: timerActions.SPLIT });
   expect(actual).toEqual(expected);
+});
+
+test("undo action returns the same state if there are no splits to remove", () => {
+  const args = {
+    splits: [new Split("", null, 0), new Split("", null, 1)],
+    currentSplit: 0,
+  };
+  const actual = timerStateReducer(args, { type: timerActions.UNDO });
+  expect(actual).toEqual(args);
 });
 
 test("undo action removes time from last split and decrements current split", () => {
