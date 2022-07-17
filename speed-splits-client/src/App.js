@@ -1,13 +1,15 @@
-import SplitTimer from "./components/SplitTimer/SplitTimer";
+import React from "react";
+import { BrowserRouter } from "react-router-dom";
+import AppRouter from "./components/Shared/AppRouter/AppRouter";
 import "./styles/utilities.css";
 import "./styles/custom-styles.css";
-import Navbar from "./components/Shared/Navbar/Navbar";
 
 function App() {
   return (
     <>
-      <Navbar />
-      <SplitTimer />
+      <BrowserRouter>
+        <AppRouter />
+      </BrowserRouter>
     </>
   );
 }
