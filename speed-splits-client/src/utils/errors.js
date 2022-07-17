@@ -39,3 +39,19 @@ export class FormatError extends BaseError {
     super(message);
   }
 }
+export class ArgumentException extends BaseError {
+  constructor(msg, parameterName) {
+    if (parameterName) msg = `${msg} Parameter: ${parameterName}`;
+    super(msg);
+  }
+}
+
+export class ArgumentNullException extends BaseError {
+  constructor(parameterName) {
+    super("Argument cannot be null.", parameterName);
+  }
+
+  static Guard(name, value) {
+    if (!value) throw new ArgumentNullException(name);
+  }
+}
