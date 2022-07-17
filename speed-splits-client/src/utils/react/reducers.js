@@ -137,8 +137,9 @@ export const timerStateReducer = (state, action) => {
       break;
     }
     case timerActions.STOP: {
-      newState = { ...state, status: timerStatus.STOPPED };
-      Storage.AddOrUpdate(storageKeys.STATUS);
+      const status = timerStatus.STOPPED;
+      newState = { ...state, status };
+      Storage.AddOrUpdate(storageKeys.STATUS, status);
       break;
     }
     default:
