@@ -1,5 +1,4 @@
 .split-times {
-  position: absolute;
-  left: 1rem;
-  top: 2rem;
+  display: grid;
+  place-items: center;
 }
