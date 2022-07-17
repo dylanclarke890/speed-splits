@@ -85,6 +85,7 @@ export default function SplitTimer() {
     <>
       <div>
         <TimeDisplay time={tState.time} />
+        <SplitsList splits={tState.splits} />
         <SplitTimerControls
           status={tState.status}
           onStart={start}
@@ -94,7 +95,6 @@ export default function SplitTimer() {
           onReset={reset}
           onStop={stop}
         />
-        <SplitsList splits={tState.splits} />
       </div>
     </>
   );

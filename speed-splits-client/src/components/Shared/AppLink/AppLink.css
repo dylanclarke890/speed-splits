@@ -1,0 +1,23 @@
+.app-link {
+  background: linear-gradient(#1c1c1c 0%, #121212 100%);
+  border: 1px solid #404040;
+  border-radius: 5px;
+  color: #eee;
+  cursor: pointer;
+  font-family: "fira", sans-serif;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 4px 0;
+  padding: 16px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.app-link:hover {
+  background: linear-gradient(#242424 0%, #171717 100%);
+}
+
+a:-webkit-any-link {
+  color: inherit;
+  text-decoration: none;
+}
