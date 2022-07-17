@@ -46,12 +46,12 @@ export class ArgumentException extends BaseError {
   }
 }
 
-export class ArgumentNullException extends BaseError {
+export class ArgumentNullError extends BaseError {
   constructor(parameterName) {
     super("Argument cannot be null.", parameterName);
   }
 
   static Guard(name, value) {
-    if (!value) throw new ArgumentNullException(name);
+    if (!value) throw new ArgumentNullError(name);
   }
 }
