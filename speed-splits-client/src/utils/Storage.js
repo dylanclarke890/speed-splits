@@ -21,7 +21,6 @@ export default class Storage {
 
   static DeleteAll(obj) {
     ArgumentNullError.Guard("obj", obj);
-    console.log("yes");
     for (const key in obj) Storage.Delete(obj[key]);
   }
 }
