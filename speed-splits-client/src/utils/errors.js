@@ -1,4 +1,5 @@
-import { ErrorLog, storageKeys } from "../models/core";
+import { ErrorLog } from "../models/core";
+import { storageKeys } from "../models/constants";
 import Storage from "./Storage";
 
 class BaseError extends Error {

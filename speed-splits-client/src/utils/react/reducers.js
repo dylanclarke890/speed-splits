@@ -1,9 +1,11 @@
 import {
   timerActions,
+  manageSplitActions,
   storageKeys,
-  Split,
   timerStatus,
-} from "../../models/core";
+  manageSplitStatus,
+} from "../../models/constants";
+import { Split } from "../../models/core";
 import { ReducerError } from "../errors";
 import { Time } from "../formatting";
 import Storage from "../Storage";
@@ -16,12 +18,14 @@ const mockSplits = [
   new Split("", null, 4),
 ];
 
+const getSplits = () => Storage.Get(storageKeys.SPLITS, true) || mockSplits;
+
 export const timerStateReducer = (state, action) => {
   let newState;
   switch (action.type) {
     case timerActions.INITIALIZE: {
       const currentSplit = Storage.Get(storageKeys.CURRENT_SPLIT, true) || 0,
-        splits = Storage.Get(storageKeys.SPLITS, true) || mockSplits,
+        splits = getSplits(),
         status = Storage.Get(storageKeys.STATUS) || timerStatus.INITIAL,
         time = Storage.Get(storageKeys.CURRENT_TIME, true) || 0,
         timestampRef = Storage.Get(storageKeys.TIMESTAMP_REF, true) || 0,
@@ -142,6 +146,93 @@ export const timerStateReducer = (state, action) => {
       Storage.AddOrUpdate(storageKeys.STATUS, status);
       break;
     }
+    default:
+      throw new ReducerError(action.type);
+  }
+  return newState;
+};
+
+export const manageSplitsReducer = (state, action) => {
+  let newState;
+  switch (action.type) {
+    case manageSplitActions.INITIALIZE:
+      const splits = getSplits();
+      newState = { ...state, splits, status: manageSplitStatus.INITIAL };
+      break;
+    case manageSplitActions.ADD_ITEM:
+      newState = { ...state, status: manageSplitStatus.ADDING };
+      break;
+    case manageSplitActions.ADD_UPDATE: {
+      const splits = state.splits;
+      splits[action.data.i].title = action.data.value;
+      newState = { ...state, splits };
+      break;
+    }
+    case manageSplitActions.ADD_SAVE:
+      newState = { ...state };
+      break;
+    case manageSplitActions.ADD_CANCEL:
+      newState = { ...state, status: manageSplitStatus.INITIAL };
+      break;
+    case manageSplitActions.EDIT_ITEM:
+      const index = action.data.i;
+      const originalTitle = state.splits[index].title;
+      newState = {
+        ...state,
+        originalTitle,
+        selectedItem: index,
+        status: manageSplitStatus.EDITING,
+      };
+      break;
+    case manageSplitActions.EDIT_SAVE:
+      newState = {
+        ...state,
+        status: manageSplitStatus.INITIAL,
+        selectedItem: -1,
+        originalTitle: "",
+      };
+      break;
+    case manageSplitActions.EDIT_CANCEL: {
+      const splits = state.splits;
+      splits[state.selectedItem].title = state.originalTitle;
+      newState = {
+        ...state,
+        splits,
+        selectedItem: -1,
+        originalTitle: "",
+        status: manageSplitStatus.INITIAL,
+      };
+      break;
+    }
+    case manageSplitActions.DELETE_ITEM:
+      newState = {
+        ...state,
+        selectedItem: action.data.i,
+        status: manageSplitStatus.DELETING,
+      };
+      break;
+    case manageSplitActions.DELETE_CONFIRMED:
+      newState = { ...state };
+      break;
+    case manageSplitActions.DELETE_CANCEL:
+      newState = {
+        ...state,
+        selectedItem: -1,
+        status: manageSplitStatus.INITIAL,
+      };
+      break;
+    case manageSplitActions.ORDER_ITEMS:
+      newState = { ...state, status: manageSplitStatus.ORDERING };
+      break;
+    case manageSplitActions.ORDER_SAVE:
+      newState = { ...state };
+      break;
+    case manageSplitActions.ORDER_CANCEL:
+      newState = {
+        ...state,
+        status: manageSplitStatus.INITIAL,
+      };
+      break;
     default:
       throw new ReducerError(action.type);
   }

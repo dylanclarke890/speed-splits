@@ -9,8 +9,8 @@ export default function Sidebar() {
     <>
       <div className="sidebar">
         <div className="sidebar-actions">
-          <AppLink to="/test">Test</AppLink>
-          <AppLink to="/ing">ing</AppLink>
+          <AppLink to="/splits">Splits</AppLink>
+          <AppLink to="/advanced">Advanced</AppLink>
           {location.pathname !== "/" && <AppLink to="/">Back</AppLink>}
         </div>
       </div>

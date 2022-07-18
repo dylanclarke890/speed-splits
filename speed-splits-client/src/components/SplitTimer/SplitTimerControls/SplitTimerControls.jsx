@@ -1,5 +1,5 @@
 import React from "react";
-import { timerStatus } from "../../../models/core";
+import { timerStatus } from "../../../models/constants";
 import "./SplitTimerControls.css";
 
 const TimerBtn = ({ name, isMain, onClick }) => (

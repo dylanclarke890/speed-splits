@@ -3,9 +3,13 @@ import { Route, Routes } from "react-router-dom";
 import MainLayout from "../Layouts/MainLayout";
 import NotFound from "../Layouts/NotFound";
 import SplitTimer from "../../SplitTimer/SplitTimer";
+import ManageSplits from "../../ManageSplits/ManageSplits";
 
 export default function AppRouter() {
-  const routes = [["", <SplitTimer />]];
+  const routes = [
+    ["", <SplitTimer />],
+    ["/splits", <ManageSplits />],
+  ];
   return (
     <Routes>
       {routes.map((pr) => (
