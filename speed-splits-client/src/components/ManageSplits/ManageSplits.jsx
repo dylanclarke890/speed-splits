@@ -16,19 +16,30 @@ const initialState = {
   status: statuses.INITIAL,
   selectedItem: -1,
   originalTitle: "",
+  newSplit: new Split(),
 };
 
 export default function ManageSplits() {
-  const [state, dispatch] = useReducer(manageSplitsReducer, initialState);
+  const [{ splits, status, selectedItem, newSplit }, dispatch] = useReducer(
+    manageSplitsReducer,
+    initialState
+  );
 
   useEffect(() => {
     dispatch({ type: actions.INITIALIZE });
   }, []);
 
   const addItem = () => dispatch({ type: actions.ADD_ITEM }),
+    addUpdate = (e) =>
+      dispatch({ type: actions.ADD_UPDATE, data: { value: e.target.value } }),
     addCancel = () => dispatch({ type: actions.ADD_CANCEL }),
     addSave = () => dispatch({ type: actions.ADD_SAVE }),
     editItem = (i) => dispatch({ type: actions.EDIT_ITEM, data: { i } }),
+    editUpdate = (i, e) =>
+      dispatch({
+        type: actions.EDIT_UPDATE,
+        data: { i, value: e.target.value },
+      }),
     editSave = () => dispatch({ type: actions.EDIT_SAVE }),
     editCancel = () => dispatch({ type: actions.EDIT_CANCEL }),
     deleteItem = (i) => dispatch({ type: actions.DELETE_ITEM, data: { i } }),
@@ -41,24 +52,17 @@ export default function ManageSplits() {
   return (
     <>
       <div>
-        {state.splits.map((s, i) => (
+        {splits.map((s, i) => (
           <div className="d-flex" key={s.title}>
             <SplitDisplay
               split={s}
-              editableTitle={
-                i === state.selectedItem && state.status === statuses.EDITING
-              }
-              onEdit={(e) =>
-                dispatch({
-                  type: actions.ADD_UPDATE,
-                  data: { i, value: e.target.value },
-                })
-              }
+              editableTitle={i === selectedItem && status === statuses.EDITING}
+              onEdit={(e) => editUpdate(i, e)}
             />
             <ItemButtons
               index={i}
-              status={state.status}
-              selectedItem={state.selectedItem}
+              status={status}
+              selectedItem={selectedItem}
               editItem={editItem}
               editCancel={editCancel}
               editSave={editSave}
@@ -68,17 +72,18 @@ export default function ManageSplits() {
             />
           </div>
         ))}
-        {state.status === statuses.ADDING && (
+        {status === statuses.ADDING && (
           <div className="d-flex">
             <SplitDisplay
-              split={new Split()}
+              split={newSplit}
               editableTitle
-              onEdit={(e) => {}}
+              onEdit={(e) => addUpdate(e)}
             />
           </div>
         )}
       </div>
       <MainButtons
+        status={status}
         addItem={addItem}
         addCancel={addCancel}
         addSave={addSave}

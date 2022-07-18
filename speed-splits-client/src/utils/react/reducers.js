@@ -155,26 +155,45 @@ export const timerStateReducer = (state, action) => {
 export const manageSplitsReducer = (state, action) => {
   let newState;
   switch (action.type) {
-    case manageSplitActions.INITIALIZE:
+    case manageSplitActions.INITIALIZE: {
       const splits = getSplits();
       newState = { ...state, splits, status: manageSplitStatus.INITIAL };
       break;
+    }
     case manageSplitActions.ADD_ITEM:
-      newState = { ...state, status: manageSplitStatus.ADDING };
+      newState = {
+        ...state,
+        status: manageSplitStatus.ADDING,
+        newSplit: new Split(),
+      };
       break;
     case manageSplitActions.ADD_UPDATE: {
-      const splits = state.splits;
-      splits[action.data.i].title = action.data.value;
-      newState = { ...state, splits };
+      const newSplit = state.newSplit;
+      newSplit.title = action.data.value;
+      newState = { ...state, newSplit };
       break;
     }
-    case manageSplitActions.ADD_SAVE:
-      newState = { ...state };
+    case manageSplitActions.ADD_SAVE: {
+      console.log("yo");
+      const newSplit = state.newSplit;
+      newSplit.order = state.splits.length;
+      const splits = [...state.splits, newSplit];
+      newState = {
+        ...state,
+        splits,
+        newSplit: new Split(),
+        status: manageSplitStatus.INITIAL,
+      };
       break;
+    }
     case manageSplitActions.ADD_CANCEL:
-      newState = { ...state, status: manageSplitStatus.INITIAL };
+      newState = {
+        ...state,
+        status: manageSplitStatus.INITIAL,
+        newSplit: new Split(),
+      };
       break;
-    case manageSplitActions.EDIT_ITEM:
+    case manageSplitActions.EDIT_ITEM: {
       const index = action.data.i;
       const originalTitle = state.splits[index].title;
       newState = {
@@ -184,6 +203,13 @@ export const manageSplitsReducer = (state, action) => {
         status: manageSplitStatus.EDITING,
       };
       break;
+    }
+    case manageSplitActions.EDIT_UPDATE: {
+      const splits = state.splits;
+      splits[action.data.i].title = action.data.value;
+      newState = { ...state, splits };
+      break;
+    }
     case manageSplitActions.EDIT_SAVE:
       newState = {
         ...state,
