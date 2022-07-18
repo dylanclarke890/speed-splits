@@ -160,13 +160,14 @@ export const manageSplitsReducer = (state, action) => {
       newState = { ...state, splits, status: manageSplitStatus.INITIAL };
       break;
     }
-    case manageSplitActions.ADD_ITEM:
+    case manageSplitActions.ADD_ITEM: {
       newState = {
         ...state,
         status: manageSplitStatus.ADDING,
         newSplit: new Split(),
       };
       break;
+    }
     case manageSplitActions.ADD_UPDATE: {
       const newSplit = state.newSplit;
       newSplit.title = action.data.value;
@@ -174,7 +175,14 @@ export const manageSplitsReducer = (state, action) => {
       break;
     }
     case manageSplitActions.ADD_SAVE: {
-      console.log("yo");
+      if (!state.newSplit.title) {
+        newState = {
+          ...state,
+          newSplit: new Split(),
+          status: manageSplitStatus.INITIAL,
+        };
+        break;
+      }
       const newSplit = state.newSplit;
       newSplit.order = state.splits.length;
       const splits = [...state.splits, newSplit];
@@ -186,13 +194,14 @@ export const manageSplitsReducer = (state, action) => {
       };
       break;
     }
-    case manageSplitActions.ADD_CANCEL:
+    case manageSplitActions.ADD_CANCEL: {
       newState = {
         ...state,
         status: manageSplitStatus.INITIAL,
         newSplit: new Split(),
       };
       break;
+    }
     case manageSplitActions.EDIT_ITEM: {
       const index = action.data.i;
       const originalTitle = state.splits[index].title;
@@ -210,7 +219,7 @@ export const manageSplitsReducer = (state, action) => {
       newState = { ...state, splits };
       break;
     }
-    case manageSplitActions.EDIT_SAVE:
+    case manageSplitActions.EDIT_SAVE: {
       newState = {
         ...state,
         status: manageSplitStatus.INITIAL,
@@ -218,6 +227,7 @@ export const manageSplitsReducer = (state, action) => {
         originalTitle: "",
       };
       break;
+    }
     case manageSplitActions.EDIT_CANCEL: {
       const splits = state.splits;
       splits[state.selectedItem].title = state.originalTitle;
@@ -230,23 +240,32 @@ export const manageSplitsReducer = (state, action) => {
       };
       break;
     }
-    case manageSplitActions.DELETE_ITEM:
+    case manageSplitActions.DELETE_ITEM: {
       newState = {
         ...state,
         selectedItem: action.data.i,
         status: manageSplitStatus.DELETING,
       };
       break;
-    case manageSplitActions.DELETE_CONFIRMED:
-      newState = { ...state };
+    }
+    case manageSplitActions.DELETE_CONFIRMED: {
+      const splits = state.splits.filter((_, i) => i !== state.selectedItem);
+      newState = {
+        ...state,
+        splits,
+        selectedItem: -1,
+        status: manageSplitStatus.INITIAL,
+      };
       break;
-    case manageSplitActions.DELETE_CANCEL:
+    }
+    case manageSplitActions.DELETE_CANCEL: {
       newState = {
         ...state,
         selectedItem: -1,
         status: manageSplitStatus.INITIAL,
       };
       break;
+    }
     case manageSplitActions.ORDER_ITEMS:
       newState = { ...state, status: manageSplitStatus.ORDERING };
       break;
