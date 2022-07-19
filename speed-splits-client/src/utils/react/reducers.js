@@ -153,17 +153,18 @@ export const timerStateReducer = (state, action) => {
 };
 
 export const manageSplitsReducer = (state, action) => {
+  const statuses = manageSplitStatus;
   let newState;
   switch (action.type) {
     case manageSplitActions.INITIALIZE: {
       const splits = getSplits();
-      newState = { ...state, splits, status: manageSplitStatus.INITIAL };
+      newState = { ...state, splits, status: statuses.INITIAL };
       break;
     }
     case manageSplitActions.ADD_ITEM: {
       newState = {
         ...state,
-        status: manageSplitStatus.ADDING,
+        status: statuses.ADDING,
         newSplit: new Split(),
       };
       break;
@@ -179,7 +180,7 @@ export const manageSplitsReducer = (state, action) => {
         newState = {
           ...state,
           newSplit: new Split(),
-          status: manageSplitStatus.INITIAL,
+          status: statuses.INITIAL,
         };
         break;
       }
@@ -190,14 +191,14 @@ export const manageSplitsReducer = (state, action) => {
         ...state,
         splits,
         newSplit: new Split(),
-        status: manageSplitStatus.INITIAL,
+        status: statuses.INITIAL,
       };
       break;
     }
     case manageSplitActions.ADD_CANCEL: {
       newState = {
         ...state,
-        status: manageSplitStatus.INITIAL,
+        status: statuses.INITIAL,
         newSplit: new Split(),
       };
       break;
@@ -209,7 +210,7 @@ export const manageSplitsReducer = (state, action) => {
         ...state,
         originalTitle,
         selectedItem: index,
-        status: manageSplitStatus.EDITING,
+        status: statuses.EDITING,
       };
       break;
     }
@@ -222,7 +223,7 @@ export const manageSplitsReducer = (state, action) => {
     case manageSplitActions.EDIT_SAVE: {
       newState = {
         ...state,
-        status: manageSplitStatus.INITIAL,
+        status: statuses.INITIAL,
         selectedItem: -1,
         originalTitle: "",
       };
@@ -236,7 +237,7 @@ export const manageSplitsReducer = (state, action) => {
         splits,
         selectedItem: -1,
         originalTitle: "",
-        status: manageSplitStatus.INITIAL,
+        status: statuses.INITIAL,
       };
       break;
     }
@@ -244,7 +245,7 @@ export const manageSplitsReducer = (state, action) => {
       newState = {
         ...state,
         selectedItem: action.data.i,
-        status: manageSplitStatus.DELETING,
+        status: statuses.DELETING,
       };
       break;
     }
@@ -254,7 +255,7 @@ export const manageSplitsReducer = (state, action) => {
         ...state,
         splits,
         selectedItem: -1,
-        status: manageSplitStatus.INITIAL,
+        status: statuses.INITIAL,
       };
       break;
     }
@@ -262,20 +263,53 @@ export const manageSplitsReducer = (state, action) => {
       newState = {
         ...state,
         selectedItem: -1,
-        status: manageSplitStatus.INITIAL,
+        status: statuses.INITIAL,
       };
       break;
     }
     case manageSplitActions.ORDER_ITEMS:
-      newState = { ...state, status: manageSplitStatus.ORDERING };
-      break;
-    case manageSplitActions.ORDER_SAVE:
-      newState = { ...state };
-      break;
-    case manageSplitActions.ORDER_CANCEL:
       newState = {
         ...state,
-        status: manageSplitStatus.INITIAL,
+        status: statuses.ORDERING,
+        // create a deep copy of the original splits
+        // in case the user wants to cancel later.
+        originalOrder: JSON.parse(JSON.stringify(state.splits)),
+      };
+      break;
+    case manageSplitActions.ORDER_DRAG_START: {
+      const { i } = action.data;
+      newState = { ...state, selectedItem: i };
+      break;
+    }
+    case manageSplitActions.ORDER_DRAGOVER: {
+      const { i } = action.data;
+      newState = { ...state, droppedItem: i };
+      break;
+    }
+    case manageSplitActions.ORDER_DROP: {
+      let splits = state.splits;
+      const dragged = splits[state.selectedItem];
+      const dropped = splits[state.droppedItem];
+      splits = splits.map((v, i) => {
+        if (i === state.selectedItem) v = dropped;
+        if (i === state.droppedItem) v = dragged;
+        v.order = i;
+        return v;
+      });
+      newState = { ...state, splits };
+      break;
+    }
+    case manageSplitActions.ORDER_SAVE:
+      newState = { ...state, status: statuses.INITIAL, originalOrder: [] };
+      break;
+    case manageSplitActions.ORDER_CANCEL:
+      const splits = state.originalOrder;
+      console.log(state.originalOrder);
+      newState = {
+        ...state,
+        status: statuses.INITIAL,
+        splits,
+        originalOrder: [],
       };
       break;
     default:

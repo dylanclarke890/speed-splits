@@ -17,6 +17,8 @@ const initialState = {
   selectedItem: -1,
   originalTitle: "",
   newSplit: new Split(),
+  originalOrder: [],
+  droppedItem: -1,
 };
 
 export default function ManageSplits() {
@@ -46,32 +48,52 @@ export default function ManageSplits() {
     deleteConfirm = () => dispatch({ type: actions.DELETE_CONFIRMED }),
     deleteCancel = () => dispatch({ type: actions.DELETE_CANCEL }),
     orderItems = () => dispatch({ type: actions.ORDER_ITEMS }),
+    orderDragStart = (e, i) =>
+      dispatch({ type: actions.ORDER_DRAG_START, data: { i, e } }),
+    orderDragOver = (e, i) =>
+      dispatch({ type: actions.ORDER_DRAGOVER, data: { i, e } }),
+    orderDrop = (e, i) =>
+      dispatch({ type: actions.ORDER_DROP, data: { i, e } }),
     orderSave = () => dispatch({ type: actions.ORDER_SAVE }),
     orderCancel = () => dispatch({ type: actions.ORDER_CANCEL });
 
   return (
     <>
       <div>
-        {splits.map((s, i) => (
-          <div className="d-flex" key={s.title}>
-            <SplitDisplay
-              split={s}
-              editableTitle={i === selectedItem && status === statuses.EDITING}
-              onEdit={(e) => editUpdate(i, e)}
-            />
-            <ItemButtons
-              index={i}
-              status={status}
-              selectedItem={selectedItem}
-              editItem={editItem}
-              editCancel={editCancel}
-              editSave={editSave}
-              deleteItem={deleteItem}
-              deleteCancel={deleteCancel}
-              deleteConfirm={deleteConfirm}
-            />
-          </div>
-        ))}
+        {splits
+          .sort((a, b) => a.order - b.order)
+          .map((s, i) => (
+            <div
+              className="d-flex"
+              key={s.title}
+              draggable={status === statuses.ORDERING}
+              onDragStart={(e) => orderDragStart(e, i)}
+              onDragOver={(e) => {
+                e.preventDefault();
+                orderDragOver(e, i);
+              }}
+              onDrop={(e) => orderDrop(e, i)}
+            >
+              <SplitDisplay
+                split={s}
+                editableTitle={
+                  i === selectedItem && status === statuses.EDITING
+                }
+                onEdit={(e) => editUpdate(i, e)}
+              />
+              <ItemButtons
+                index={i}
+                status={status}
+                selectedItem={selectedItem}
+                editItem={editItem}
+                editCancel={editCancel}
+                editSave={editSave}
+                deleteItem={deleteItem}
+                deleteCancel={deleteCancel}
+                deleteConfirm={deleteConfirm}
+              />
+            </div>
+          ))}
         {status === statuses.ADDING && (
           <div className="d-flex">
             <SplitDisplay

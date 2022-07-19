@@ -40,6 +40,9 @@ export const manageSplitActions = {
   DELETE_CONFIRMED: "deleteConfirmed",
   DELETE_CANCEL: "deleteCancel",
   ORDER_ITEMS: "orderItems",
+  ORDER_DRAG_START: "orderDrag",
+  ORDER_DRAGOVER: "orderDragOver",
+  ORDER_DROP: "orderDrop",
   ORDER_SAVE: "orderSave",
   ORDER_CANCEL: "orderCancel",
 };
