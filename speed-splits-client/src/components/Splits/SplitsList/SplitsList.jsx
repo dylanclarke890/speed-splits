@@ -9,7 +9,7 @@ export default function SplitsList({ splits }) {
         {splits
           .sort((a, b) => a.order - b.order)
           .map((s) => (
-            <SplitDisplay split={s} key={s.order} />
+            <SplitDisplay key={s.order} split={s} showTime />
           ))}
       </div>
     </>

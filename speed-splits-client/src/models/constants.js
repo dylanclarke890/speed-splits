@@ -10,6 +10,8 @@ export const storageKeys = {
 
 export const settingStorageKeys = {
   SETTINGS: "settings",
+  RUNS: "runs",
+  SELECTED_RUN: "selectedRun",
 };
 
 export const timerActions = {

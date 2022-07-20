@@ -11,24 +11,27 @@ import { ReducerError } from "../errors";
 import { Time } from "../formatting";
 import Storage from "../Storage";
 
-const mockSplits = [
-  new Split("Start", null, 0),
-  new Split("First", null, 1),
-  new Split("Second", null, 2),
-  new Split("Third", null, 3),
-  new Split("", null, 4),
-];
-
 export const timerStateReducer = (state, action) => {
   let newState;
   switch (action.type) {
     case timerActions.INITIALIZE: {
-      const currentSplit = Storage.Get(storageKeys.CURRENT_SPLIT, true) || 0,
-        splits = Storage.Get(storageKeys.SPLITS, true) || mockSplits,
-        status = Storage.Get(storageKeys.STATUS) || timerStatus.INITIAL,
-        time = Storage.Get(storageKeys.CURRENT_TIME, true) || 0,
-        timestampRef = Storage.Get(storageKeys.TIMESTAMP_REF, true) || 0,
+      let currentSplit = 0,
+        status = timerStatus.INITIAL,
+        time = 0,
+        timestampRef = 0,
+        recordedTimes = [];
+      let splits = Storage.Get(storageKeys.SPLITS, true);
+
+      if (!splits)
+        splits = Storage.Get(settingStorageKeys.SELECTED_RUN, true) || [];
+      else {
+        currentSplit = Storage.Get(storageKeys.CURRENT_SPLIT, true) || 0;
+        status = Storage.Get(storageKeys.STATUS) || timerStatus.INITIAL;
+        time = Storage.Get(storageKeys.CURRENT_TIME, true) || 0;
+        timestampRef = Storage.Get(storageKeys.TIMESTAMP_REF, true) || 0;
         recordedTimes = Storage.Get(storageKeys.RECORDED_TIMES, true) || [];
+      }
+
       newState = {
         time,
         splits,
@@ -157,22 +160,28 @@ export const manageSplitsReducer = (state, action) => {
   switch (action.type) {
     case manageSplitActions.INITIALIZE: {
       const data = Storage.Get(settingStorageKeys.SETTINGS, true);
+      console.log(data);
+
       if (!data) {
         newState = { ...state };
         break;
       }
-      data.status = statuses.INITIAL;
+
       if (data.selectedRun >= 0 && data.runs.length > 0) {
-        data.splits = data.runs[data.selectedItem];
+        data.splits = data.runs[data.selectedRun];
       } else {
-        data.selectedRun = -1;
+        data.selectedRun = 0;
+        data.runs.push([]);
       }
-      if (data.originalTitle && data.selectedItem >= 0) {
+      if (
+        data.status === statuses.EDITING &&
+        data.originalTitle &&
+        data.selectedItem >= 0
+      ) {
         data.splits[data.selectedItem] = data.originalTitle;
         data.originalTitle = "";
         data.selectedItem = -1;
-      }
-      if (data.originalOrder) {
+      } else if (data.status === statuses.EDITING && data.originalOrder) {
         data.splits = data.originalOrder;
         data.originalOrder = null;
       }
@@ -336,6 +345,11 @@ export const manageSplitsReducer = (state, action) => {
     default:
       throw new ReducerError(action.type);
   }
-  Storage.AddOrUpdate(settingStorageKeys.SETTINGS, newState, true);
+  Storage.AddOrUpdate(settingStorageKeys.SETTINGS, newState, true, true);
+  Storage.AddOrUpdate(
+    settingStorageKeys.SELECTED_RUN,
+    newState.runs[newState.selectedRun],
+    true
+  );
   return newState;
 };
