@@ -8,7 +8,7 @@ export const storageKeys = {
   ERROR_LOG: "errorLog",
 };
 
-export const settingStorageKeys = {
+export const runStorageKeys = {
   SETTINGS: "settings",
   RUNS: "runs",
   SELECTED_RUN: "selectedRun",
@@ -32,7 +32,7 @@ export const timerStatus = {
   STOPPED: "stopped",
 };
 
-export const manageSplitActions = {
+export const editRunActions = {
   INITIALIZE: "initialize",
   ADD_ITEM: "addItem",
   ADD_UPDATE: "addUpdate",
@@ -57,7 +57,7 @@ export const manageSplitActions = {
   TITLE_CANCEL: "titleCancel",
 };
 
-export const manageSplitStatus = {
+export const editRunStatus = {
   INITIAL: "initial",
   ADDING: "adding",
   EDITING: "editing",

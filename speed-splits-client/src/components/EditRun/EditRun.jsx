@@ -3,11 +3,11 @@ import { useReducer } from "react";
 import { useEffect } from "react";
 import { Split } from "../../models/core";
 import {
-  manageSplitActions as actions,
-  manageSplitStatus as statuses,
+  editRunActions as actions,
+  editRunStatus as statuses,
 } from "../../models/constants";
 import SplitDisplay from "../Splits/SplitDisplay/SplitDisplay";
-import { manageSplitsReducer } from "../../utils/react/reducers";
+import { editRunReducer } from "../../utils/react/reducers";
 import ItemButtons from "./Controls/ItemButtons";
 import MainButtons from "./Controls/MainButtons";
 
@@ -27,12 +27,13 @@ export default function ManageSplits() {
   const [
     { splits, status, selectedItem, newSplit, runs, selectedRun },
     dispatch,
-  ] = useReducer(manageSplitsReducer, initialState);
+  ] = useReducer(editRunReducer, initialState);
 
   useEffect(() => {
     dispatch({ type: actions.INITIALIZE });
   }, []);
 
+  // TODO: get rid of these
   const addItem = () => dispatch({ type: actions.ADD_ITEM }),
     addUpdate = (e) =>
       dispatch({ type: actions.ADD_UPDATE, data: { value: e.target.value } }),
@@ -64,7 +65,7 @@ export default function ManageSplits() {
     titleSave = () => dispatch({ type: actions.TITLE_SAVE }),
     titleCancel = () => dispatch({ type: actions.TITLE_CANCEL });
 
-  const title = selectedRun > -1 ? runs[selectedRun].name : null;
+  const title = selectedRun > -1 ? runs[selectedRun].name : "Untitled";
   return (
     <>
       {status === statuses.EDITING_TITLE ? (
