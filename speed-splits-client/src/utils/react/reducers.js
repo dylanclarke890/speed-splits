@@ -4,6 +4,7 @@ import {
   storageKeys,
   timerStatus,
   manageSplitStatus,
+  settingStorageKeys,
 } from "../../models/constants";
 import { Split } from "../../models/core";
 import { ReducerError } from "../errors";
@@ -18,14 +19,12 @@ const mockSplits = [
   new Split("", null, 4),
 ];
 
-const getSplits = () => Storage.Get(storageKeys.SPLITS, true) || mockSplits;
-
 export const timerStateReducer = (state, action) => {
   let newState;
   switch (action.type) {
     case timerActions.INITIALIZE: {
       const currentSplit = Storage.Get(storageKeys.CURRENT_SPLIT, true) || 0,
-        splits = getSplits(),
+        splits = Storage.Get(storageKeys.SPLITS, true) || mockSplits,
         status = Storage.Get(storageKeys.STATUS) || timerStatus.INITIAL,
         time = Storage.Get(storageKeys.CURRENT_TIME, true) || 0,
         timestampRef = Storage.Get(storageKeys.TIMESTAMP_REF, true) || 0,
@@ -157,8 +156,27 @@ export const manageSplitsReducer = (state, action) => {
   let newState;
   switch (action.type) {
     case manageSplitActions.INITIALIZE: {
-      const splits = getSplits();
-      newState = { ...state, splits, status: statuses.INITIAL };
+      const data = Storage.Get(settingStorageKeys.SETTINGS, true);
+      if (!data) {
+        newState = { ...state };
+        break;
+      }
+      data.status = statuses.INITIAL;
+      if (data.selectedRun >= 0 && data.runs.length > 0) {
+        data.splits = data.runs[data.selectedItem];
+      } else {
+        data.selectedRun = -1;
+      }
+      if (data.originalTitle && data.selectedItem >= 0) {
+        data.splits[data.selectedItem] = data.originalTitle;
+        data.originalTitle = "";
+        data.selectedItem = -1;
+      }
+      if (data.originalOrder) {
+        data.splits = data.originalOrder;
+        data.originalOrder = null;
+      }
+      newState = { ...data };
       break;
     }
     case manageSplitActions.ADD_ITEM: {
@@ -187,8 +205,12 @@ export const manageSplitsReducer = (state, action) => {
       const newSplit = state.newSplit;
       newSplit.order = state.splits.length;
       const splits = [...state.splits, newSplit];
+      const runs = state.runs;
+      if (runs.length) runs[state.selectedRun] = splits;
+      else runs.push(splits);
       newState = {
         ...state,
+        runs,
         splits,
         newSplit: new Split(),
         status: statuses.INITIAL,
@@ -300,20 +322,20 @@ export const manageSplitsReducer = (state, action) => {
       break;
     }
     case manageSplitActions.ORDER_SAVE:
-      newState = { ...state, status: statuses.INITIAL, originalOrder: [] };
+      newState = { ...state, status: statuses.INITIAL, originalOrder: null };
       break;
     case manageSplitActions.ORDER_CANCEL:
       const splits = state.originalOrder;
-      console.log(state.originalOrder);
       newState = {
         ...state,
         status: statuses.INITIAL,
         splits,
-        originalOrder: [],
+        originalOrder: null,
       };
       break;
     default:
       throw new ReducerError(action.type);
   }
+  Storage.AddOrUpdate(settingStorageKeys.SETTINGS, newState, true);
   return newState;
 };

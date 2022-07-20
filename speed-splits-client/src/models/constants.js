@@ -8,6 +8,10 @@ export const storageKeys = {
   ERROR_LOG: "errorLog",
 };
 
+export const settingStorageKeys = {
+  SETTINGS: "settings",
+};
+
 export const timerActions = {
   INITIALIZE: "initialize",
   START: "start",

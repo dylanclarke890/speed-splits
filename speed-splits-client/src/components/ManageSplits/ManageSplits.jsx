@@ -12,13 +12,15 @@ import ItemButtons from "./Controls/ItemButtons";
 import MainButtons from "./Controls/MainButtons";
 
 const initialState = {
-  splits: [],
-  status: statuses.INITIAL,
-  selectedItem: -1,
-  originalTitle: "",
-  newSplit: new Split(),
-  originalOrder: [],
   droppedItem: -1,
+  newSplit: new Split(),
+  originalTitle: "",
+  originalOrder: null,
+  runs: [],
+  selectedItem: -1,
+  selectedRun: -1,
+  status: statuses.INITIAL,
+  splits: [],
 };
 
 export default function ManageSplits() {
