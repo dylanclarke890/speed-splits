@@ -24,10 +24,10 @@ const initialState = {
 };
 
 export default function ManageSplits() {
-  const [{ splits, status, selectedItem, newSplit }, dispatch] = useReducer(
-    manageSplitsReducer,
-    initialState
-  );
+  const [
+    { splits, status, selectedItem, newSplit, runs, selectedRun },
+    dispatch,
+  ] = useReducer(manageSplitsReducer, initialState);
 
   useEffect(() => {
     dispatch({ type: actions.INITIALIZE });
@@ -57,10 +57,36 @@ export default function ManageSplits() {
     orderDrop = (e, i) =>
       dispatch({ type: actions.ORDER_DROP, data: { i, e } }),
     orderSave = () => dispatch({ type: actions.ORDER_SAVE }),
-    orderCancel = () => dispatch({ type: actions.ORDER_CANCEL });
+    orderCancel = () => dispatch({ type: actions.ORDER_CANCEL }),
+    titleEdit = () => dispatch({ type: actions.TITLE_EDIT }),
+    titleUpdate = (e) =>
+      dispatch({ type: actions.TITLE_UPDATE, data: { value: e.target.value } }),
+    titleSave = () => dispatch({ type: actions.TITLE_SAVE }),
+    titleCancel = () => dispatch({ type: actions.TITLE_CANCEL });
 
+  const title = selectedRun > -1 ? runs[selectedRun].name : null;
   return (
     <>
+      {status === statuses.EDITING_TITLE ? (
+        <>
+          <input
+            className="custom-input"
+            type="text"
+            value={title}
+            onChange={titleUpdate}
+            autoFocus
+          />
+          <button className="btn" onClick={titleSave}>
+            Save
+          </button>
+          <button className="btn" onClick={titleCancel}>
+            Cancel
+          </button>
+        </>
+      ) : (
+        <h2 onClick={titleEdit}>{title}</h2>
+      )}
+
       <div>
         {splits
           .sort((a, b) => a.order - b.order)
