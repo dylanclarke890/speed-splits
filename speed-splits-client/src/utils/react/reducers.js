@@ -6,7 +6,7 @@ import {
   manageSplitStatus,
   settingStorageKeys,
 } from "../../models/constants";
-import { Split } from "../../models/core";
+import { Run, Split } from "../../models/core";
 import { ReducerError } from "../errors";
 import { Time } from "../formatting";
 import Storage from "../Storage";
@@ -22,9 +22,10 @@ export const timerStateReducer = (state, action) => {
         recordedTimes = [];
       let splits = Storage.Get(storageKeys.SPLITS, true);
 
-      if (!splits)
-        splits = Storage.Get(settingStorageKeys.SELECTED_RUN, true) || [];
-      else {
+      if (!splits) {
+        splits =
+          Storage.Get(settingStorageKeys.SELECTED_RUN, true).splits || [];
+      } else {
         currentSplit = Storage.Get(storageKeys.CURRENT_SPLIT, true) || 0;
         status = Storage.Get(storageKeys.STATUS) || timerStatus.INITIAL;
         time = Storage.Get(storageKeys.CURRENT_TIME, true) || 0;
@@ -160,18 +161,16 @@ export const manageSplitsReducer = (state, action) => {
   switch (action.type) {
     case manageSplitActions.INITIALIZE: {
       const data = Storage.Get(settingStorageKeys.SETTINGS, true);
-      console.log(data);
-
       if (!data) {
         newState = { ...state };
         break;
       }
 
       if (data.selectedRun >= 0 && data.runs.length > 0) {
-        data.splits = data.runs[data.selectedRun];
+        data.splits = data.runs[data.selectedRun].splits;
       } else {
         data.selectedRun = 0;
-        data.runs.push([]);
+        data.runs.push(new Run());
       }
       if (
         data.status === statuses.EDITING &&
@@ -211,12 +210,15 @@ export const manageSplitsReducer = (state, action) => {
         };
         break;
       }
+
       const newSplit = state.newSplit;
       newSplit.order = state.splits.length;
       const splits = [...state.splits, newSplit];
+
       const runs = state.runs;
-      if (runs.length) runs[state.selectedRun] = splits;
-      else runs.push(splits);
+      if (state.selectedRun >= 0) runs[state.selectedRun].splits = splits;
+      else runs.push(new Run("", splits));
+
       newState = {
         ...state,
         runs,
@@ -248,7 +250,9 @@ export const manageSplitsReducer = (state, action) => {
     case manageSplitActions.EDIT_UPDATE: {
       const splits = state.splits;
       splits[action.data.i].title = action.data.value;
-      newState = { ...state, splits };
+      const runs = state.runs;
+      runs[state.selectedRun].splits = splits;
+      newState = { ...state, splits, runs };
       break;
     }
     case manageSplitActions.EDIT_SAVE: {
@@ -282,8 +286,11 @@ export const manageSplitsReducer = (state, action) => {
     }
     case manageSplitActions.DELETE_CONFIRMED: {
       const splits = state.splits.filter((_, i) => i !== state.selectedItem);
+      const runs = state.runs;
+      runs[state.selectedRun].splits = splits;
       newState = {
         ...state,
+        runs,
         splits,
         selectedItem: -1,
         status: statuses.INITIAL,
@@ -327,11 +334,18 @@ export const manageSplitsReducer = (state, action) => {
         v.order = i;
         return v;
       });
-      newState = { ...state, splits };
+      newState = { ...state, splits, selectedItem: -1, droppedItem: -1 };
       break;
     }
     case manageSplitActions.ORDER_SAVE:
-      newState = { ...state, status: statuses.INITIAL, originalOrder: null };
+      const runs = state.runs;
+      runs[state.selectedRun].splits = state.splits;
+      newState = {
+        ...state,
+        status: statuses.INITIAL,
+        originalOrder: null,
+        runs,
+      };
       break;
     case manageSplitActions.ORDER_CANCEL:
       const splits = state.originalOrder;
@@ -342,6 +356,26 @@ export const manageSplitsReducer = (state, action) => {
         originalOrder: null,
       };
       break;
+    case manageSplitActions.TITLE_EDIT:
+      const originalTitle = state.runs[state.selectedRun].name;
+      newState = { ...state, originalTitle, status: statuses.EDITING_TITLE };
+      break;
+    case manageSplitActions.TITLE_UPDATE: {
+      const name = action.data.value;
+      const runs = state.runs;
+      runs[state.selectedRun].name = name;
+      newState = { ...state, runs };
+      break;
+    }
+    case manageSplitActions.TITLE_SAVE:
+      newState = { ...state, status: statuses.INITIAL };
+      break;
+    case manageSplitActions.TITLE_CANCEL: {
+      const runs = state.runs;
+      runs[state.selectedRun].name = state.originalTitle;
+      newState = { ...state, runs, status: statuses.INITIAL };
+      break;
+    }
     default:
       throw new ReducerError(action.type);
   }

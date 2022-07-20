@@ -1,3 +1,10 @@
+export class Run {
+  constructor(name, splits) {
+    this.name = name || "Untitled";
+    this.splits = splits || [];
+  }
+}
+
 export class Split {
   constructor(title, time, order) {
     this.title = title || order;

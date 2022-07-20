@@ -51,12 +51,17 @@ export const manageSplitActions = {
   ORDER_DROP: "orderDrop",
   ORDER_SAVE: "orderSave",
   ORDER_CANCEL: "orderCancel",
+  TITLE_EDIT: "titleEdit",
+  TITLE_UPDATE: "titleUpdate",
+  TITLE_SAVE: "titleSave",
+  TITLE_CANCEL: "titleCancel",
 };
 
 export const manageSplitStatus = {
   INITIAL: "initial",
   ADDING: "adding",
   EDITING: "editing",
+  EDITING_TITLE: "editingTitle",
   DELETING: "deleting",
   ORDERING: "ordering",
   SAVING: "saving",
