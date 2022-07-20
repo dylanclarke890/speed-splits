@@ -1,6 +1,6 @@
 import React from "react";
 import { useReducer, useEffect } from "react";
-import { timerActions, timerStatus } from "../../models/core";
+import { timerActions, timerStatus } from "../../models/constants";
 import { GlobalEvents } from "../../utils/events";
 import { useOnInit } from "../../utils/react/custom-hooks";
 import { timerStateReducer } from "../../utils/react/reducers";

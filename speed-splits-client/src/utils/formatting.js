@@ -1,4 +1,4 @@
-import { FormatError, InvalidOperationError } from "./errors";
+import { InvalidOperationError } from "./errors";
 
 export class Time {
   static toString(time, format) {
@@ -20,7 +20,7 @@ export class Time {
     if (time === 0) return "00";
     const divideResult = time / divisor;
     const result = Math.floor(mod > 0 ? divideResult % mod : divideResult);
-    if (Number.isNaN(result)) throw new FormatError({ time, divisor, mod });
+    if (Number.isNaN(result)) return "00";
     return ("0" + result).slice(-2);
   }
 
