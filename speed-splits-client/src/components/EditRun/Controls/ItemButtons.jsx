@@ -1,5 +1,5 @@
 import React from "react";
-import { manageSplitStatus as statuses } from "../../../models/constants";
+import { editRunStatus as statuses } from "../../../models/constants";
 
 const ItemButton = ({ text, onClick }) => (
   <button onClick={onClick} className="app-link">

@@ -1,10 +1,10 @@
 import {
   timerActions,
-  manageSplitActions,
+  editRunActions,
   storageKeys,
   timerStatus,
-  manageSplitStatus,
-  settingStorageKeys,
+  editRunStatus,
+  runStorageKeys,
 } from "../../models/constants";
 import { Run, Split } from "../../models/core";
 import { ReducerError } from "../errors";
@@ -23,8 +23,7 @@ export const timerStateReducer = (state, action) => {
       let splits = Storage.Get(storageKeys.SPLITS, true);
 
       if (!splits) {
-        splits =
-          Storage.Get(settingStorageKeys.SELECTED_RUN, true).splits || [];
+        splits = Storage.Get(runStorageKeys.SELECTED_RUN, true).splits || [];
       } else {
         currentSplit = Storage.Get(storageKeys.CURRENT_SPLIT, true) || 0;
         status = Storage.Get(storageKeys.STATUS) || timerStatus.INITIAL;
@@ -155,22 +154,24 @@ export const timerStateReducer = (state, action) => {
   return newState;
 };
 
-export const manageSplitsReducer = (state, action) => {
-  const statuses = manageSplitStatus;
+export const editRunReducer = (state, action) => {
+  const statuses = editRunStatus;
   let newState;
   switch (action.type) {
-    case manageSplitActions.INITIALIZE: {
-      const data = Storage.Get(settingStorageKeys.SETTINGS, true);
+    case editRunActions.INITIALIZE: {
+      const data = Storage.Get(runStorageKeys.SETTINGS, true);
       if (!data) {
         newState = { ...state };
         break;
       }
+      const runs = Storage.Get(runStorageKeys.RUNS, true);
+      let selectedRun = Storage.Get(runStorageKeys.SELECTED_RUN, true);
 
-      if (data.selectedRun >= 0 && data.runs.length > 0) {
-        data.splits = data.runs[data.selectedRun].splits;
+      if (selectedRun >= 0 && runs.length > 0) {
+        data.splits = runs[selectedRun].splits;
       } else {
-        data.selectedRun = 0;
-        data.runs.push(new Run());
+        selectedRun = 0;
+        runs.push(new Run());
       }
       if (
         data.status === statuses.EDITING &&
@@ -184,10 +185,10 @@ export const manageSplitsReducer = (state, action) => {
         data.splits = data.originalOrder;
         data.originalOrder = null;
       }
-      newState = { ...data };
+      newState = { ...data, runs, selectedRun };
       break;
     }
-    case manageSplitActions.ADD_ITEM: {
+    case editRunActions.ADD_ITEM: {
       newState = {
         ...state,
         status: statuses.ADDING,
@@ -195,13 +196,13 @@ export const manageSplitsReducer = (state, action) => {
       };
       break;
     }
-    case manageSplitActions.ADD_UPDATE: {
+    case editRunActions.ADD_UPDATE: {
       const newSplit = state.newSplit;
       newSplit.title = action.data.value;
       newState = { ...state, newSplit };
       break;
     }
-    case manageSplitActions.ADD_SAVE: {
+    case editRunActions.ADD_SAVE: {
       if (!state.newSplit.title) {
         newState = {
           ...state,
@@ -228,7 +229,7 @@ export const manageSplitsReducer = (state, action) => {
       };
       break;
     }
-    case manageSplitActions.ADD_CANCEL: {
+    case editRunActions.ADD_CANCEL: {
       newState = {
         ...state,
         status: statuses.INITIAL,
@@ -236,7 +237,7 @@ export const manageSplitsReducer = (state, action) => {
       };
       break;
     }
-    case manageSplitActions.EDIT_ITEM: {
+    case editRunActions.EDIT_ITEM: {
       const index = action.data.i;
       const originalTitle = state.splits[index].title;
       newState = {
@@ -247,7 +248,7 @@ export const manageSplitsReducer = (state, action) => {
       };
       break;
     }
-    case manageSplitActions.EDIT_UPDATE: {
+    case editRunActions.EDIT_UPDATE: {
       const splits = state.splits;
       splits[action.data.i].title = action.data.value;
       const runs = state.runs;
@@ -255,7 +256,7 @@ export const manageSplitsReducer = (state, action) => {
       newState = { ...state, splits, runs };
       break;
     }
-    case manageSplitActions.EDIT_SAVE: {
+    case editRunActions.EDIT_SAVE: {
       newState = {
         ...state,
         status: statuses.INITIAL,
@@ -264,7 +265,7 @@ export const manageSplitsReducer = (state, action) => {
       };
       break;
     }
-    case manageSplitActions.EDIT_CANCEL: {
+    case editRunActions.EDIT_CANCEL: {
       const splits = state.splits;
       splits[state.selectedItem].title = state.originalTitle;
       newState = {
@@ -276,7 +277,7 @@ export const manageSplitsReducer = (state, action) => {
       };
       break;
     }
-    case manageSplitActions.DELETE_ITEM: {
+    case editRunActions.DELETE_ITEM: {
       newState = {
         ...state,
         selectedItem: action.data.i,
@@ -284,7 +285,7 @@ export const manageSplitsReducer = (state, action) => {
       };
       break;
     }
-    case manageSplitActions.DELETE_CONFIRMED: {
+    case editRunActions.DELETE_CONFIRMED: {
       const splits = state.splits.filter((_, i) => i !== state.selectedItem);
       const runs = state.runs;
       runs[state.selectedRun].splits = splits;
@@ -297,7 +298,7 @@ export const manageSplitsReducer = (state, action) => {
       };
       break;
     }
-    case manageSplitActions.DELETE_CANCEL: {
+    case editRunActions.DELETE_CANCEL: {
       newState = {
         ...state,
         selectedItem: -1,
@@ -305,7 +306,7 @@ export const manageSplitsReducer = (state, action) => {
       };
       break;
     }
-    case manageSplitActions.ORDER_ITEMS:
+    case editRunActions.ORDER_ITEMS:
       newState = {
         ...state,
         status: statuses.ORDERING,
@@ -314,17 +315,17 @@ export const manageSplitsReducer = (state, action) => {
         originalOrder: JSON.parse(JSON.stringify(state.splits)),
       };
       break;
-    case manageSplitActions.ORDER_DRAG_START: {
+    case editRunActions.ORDER_DRAG_START: {
       const { i } = action.data;
       newState = { ...state, selectedItem: i };
       break;
     }
-    case manageSplitActions.ORDER_DRAGOVER: {
+    case editRunActions.ORDER_DRAGOVER: {
       const { i } = action.data;
       newState = { ...state, droppedItem: i };
       break;
     }
-    case manageSplitActions.ORDER_DROP: {
+    case editRunActions.ORDER_DROP: {
       let splits = state.splits;
       const dragged = splits[state.selectedItem];
       const dropped = splits[state.droppedItem];
@@ -337,7 +338,7 @@ export const manageSplitsReducer = (state, action) => {
       newState = { ...state, splits, selectedItem: -1, droppedItem: -1 };
       break;
     }
-    case manageSplitActions.ORDER_SAVE:
+    case editRunActions.ORDER_SAVE:
       const runs = state.runs;
       runs[state.selectedRun].splits = state.splits;
       newState = {
@@ -347,7 +348,7 @@ export const manageSplitsReducer = (state, action) => {
         runs,
       };
       break;
-    case manageSplitActions.ORDER_CANCEL:
+    case editRunActions.ORDER_CANCEL:
       const splits = state.originalOrder;
       newState = {
         ...state,
@@ -356,21 +357,21 @@ export const manageSplitsReducer = (state, action) => {
         originalOrder: null,
       };
       break;
-    case manageSplitActions.TITLE_EDIT:
+    case editRunActions.TITLE_EDIT:
       const originalTitle = state.runs[state.selectedRun].name;
       newState = { ...state, originalTitle, status: statuses.EDITING_TITLE };
       break;
-    case manageSplitActions.TITLE_UPDATE: {
+    case editRunActions.TITLE_UPDATE: {
       const name = action.data.value;
       const runs = state.runs;
       runs[state.selectedRun].name = name;
       newState = { ...state, runs };
       break;
     }
-    case manageSplitActions.TITLE_SAVE:
+    case editRunActions.TITLE_SAVE:
       newState = { ...state, status: statuses.INITIAL };
       break;
-    case manageSplitActions.TITLE_CANCEL: {
+    case editRunActions.TITLE_CANCEL: {
       const runs = state.runs;
       runs[state.selectedRun].name = state.originalTitle;
       newState = { ...state, runs, status: statuses.INITIAL };
@@ -379,11 +380,8 @@ export const manageSplitsReducer = (state, action) => {
     default:
       throw new ReducerError(action.type);
   }
-  Storage.AddOrUpdate(settingStorageKeys.SETTINGS, newState, true, true);
-  Storage.AddOrUpdate(
-    settingStorageKeys.SELECTED_RUN,
-    newState.runs[newState.selectedRun],
-    true
-  );
+  Storage.AddOrUpdate(runStorageKeys.SETTINGS, newState, true, true);
+  Storage.AddOrUpdate(runStorageKeys.RUNS, newState.runs, true);
+  Storage.AddOrUpdate(runStorageKeys.SELECTED_RUN, newState.selectedRun, true);
   return newState;
 };
