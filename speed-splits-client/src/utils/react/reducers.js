@@ -164,12 +164,14 @@ export const editRunReducer = (state, action) => {
         newState = { ...state };
         break;
       }
+      const runs = Storage.Get(runStorageKeys.RUNS, true);
+      let selectedRun = Storage.Get(runStorageKeys.SELECTED_RUN, true);
 
-      if (data.selectedRun >= 0 && data.runs.length > 0) {
-        data.splits = data.runs[data.selectedRun].splits;
+      if (selectedRun >= 0 && runs.length > 0) {
+        data.splits = runs[selectedRun].splits;
       } else {
-        data.selectedRun = 0;
-        data.runs.push(new Run());
+        selectedRun = 0;
+        runs.push(new Run());
       }
       if (
         data.status === statuses.EDITING &&
@@ -183,7 +185,7 @@ export const editRunReducer = (state, action) => {
         data.splits = data.originalOrder;
         data.originalOrder = null;
       }
-      newState = { ...data };
+      newState = { ...data, runs, selectedRun };
       break;
     }
     case editRunActions.ADD_ITEM: {
@@ -379,10 +381,7 @@ export const editRunReducer = (state, action) => {
       throw new ReducerError(action.type);
   }
   Storage.AddOrUpdate(runStorageKeys.SETTINGS, newState, true, true);
-  Storage.AddOrUpdate(
-    runStorageKeys.SELECTED_RUN,
-    newState.runs[newState.selectedRun],
-    true
-  );
+  Storage.AddOrUpdate(runStorageKeys.RUNS, newState.runs, true);
+  Storage.AddOrUpdate(runStorageKeys.SELECTED_RUN, newState.selectedRun, true);
   return newState;
 };

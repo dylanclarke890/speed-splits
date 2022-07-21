@@ -4,11 +4,13 @@ import MainLayout from "../Layouts/MainLayout";
 import NotFound from "../Layouts/NotFound";
 import SplitTimer from "../../SplitTimer/SplitTimer";
 import EditRun from "../../EditRun/EditRun";
+import ViewRuns from "../../ViewRuns/ViewRuns";
 
 export default function AppRouter() {
   const routes = [
     ["", <SplitTimer />],
-    ["/splits", <EditRun />],
+    ["/splits", <ViewRuns />],
+    ["/edit-run", <EditRun />],
   ];
   return (
     <Routes>
