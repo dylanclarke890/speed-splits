@@ -33,38 +33,6 @@ export default function ManageSplits() {
     dispatch({ type: actions.INITIALIZE });
   }, []);
 
-  // TODO: get rid of these
-  const addItem = () => dispatch({ type: actions.ADD_ITEM }),
-    addUpdate = (e) =>
-      dispatch({ type: actions.ADD_UPDATE, data: { value: e.target.value } }),
-    addCancel = () => dispatch({ type: actions.ADD_CANCEL }),
-    addSave = () => dispatch({ type: actions.ADD_SAVE }),
-    editItem = (i) => dispatch({ type: actions.EDIT_ITEM, data: { i } }),
-    editUpdate = (i, e) =>
-      dispatch({
-        type: actions.EDIT_UPDATE,
-        data: { i, value: e.target.value },
-      }),
-    editSave = () => dispatch({ type: actions.EDIT_SAVE }),
-    editCancel = () => dispatch({ type: actions.EDIT_CANCEL }),
-    deleteItem = (i) => dispatch({ type: actions.DELETE_ITEM, data: { i } }),
-    deleteConfirm = () => dispatch({ type: actions.DELETE_CONFIRMED }),
-    deleteCancel = () => dispatch({ type: actions.DELETE_CANCEL }),
-    orderItems = () => dispatch({ type: actions.ORDER_ITEMS }),
-    orderDragStart = (e, i) =>
-      dispatch({ type: actions.ORDER_DRAG_START, data: { i, e } }),
-    orderDragOver = (e, i) =>
-      dispatch({ type: actions.ORDER_DRAGOVER, data: { i, e } }),
-    orderDrop = (e, i) =>
-      dispatch({ type: actions.ORDER_DROP, data: { i, e } }),
-    orderSave = () => dispatch({ type: actions.ORDER_SAVE }),
-    orderCancel = () => dispatch({ type: actions.ORDER_CANCEL }),
-    titleEdit = () => dispatch({ type: actions.TITLE_EDIT }),
-    titleUpdate = (e) =>
-      dispatch({ type: actions.TITLE_UPDATE, data: { value: e.target.value } }),
-    titleSave = () => dispatch({ type: actions.TITLE_SAVE }),
-    titleCancel = () => dispatch({ type: actions.TITLE_CANCEL });
-
   const title = selectedRun > -1 ? runs[selectedRun].name : "Untitled";
   return (
     <>
@@ -74,18 +42,29 @@ export default function ManageSplits() {
             className="custom-input"
             type="text"
             value={title}
-            onChange={titleUpdate}
+            onChange={(e) =>
+              dispatch({
+                type: actions.TITLE_UPDATE,
+                data: { value: e.target.value },
+              })
+            }
             autoFocus
           />
-          <button className="btn" onClick={titleSave}>
+          <button
+            className="btn"
+            onClick={() => dispatch({ type: actions.TITLE_SAVE })}
+          >
             Save
           </button>
-          <button className="btn" onClick={titleCancel}>
+          <button
+            className="btn"
+            onClick={() => dispatch({ type: actions.TITLE_CANCEL })}
+          >
             Cancel
           </button>
         </>
       ) : (
-        <h2 onClick={titleEdit}>{title}</h2>
+        <h2 onClick={() => dispatch({ type: actions.TITLE_EDIT })}>{title}</h2>
       )}
 
       <div>
@@ -96,30 +75,45 @@ export default function ManageSplits() {
               className="d-flex"
               key={s.title}
               draggable={status === statuses.ORDERING}
-              onDragStart={(e) => orderDragStart(e, i)}
+              onDragStart={(e) =>
+                dispatch({ type: actions.ORDER_DRAG_START, data: { i, e } })
+              }
               onDragOver={(e) => {
                 e.preventDefault();
-                orderDragOver(e, i);
+                dispatch({ type: actions.ORDER_DRAGOVER, data: { i, e } });
               }}
-              onDrop={(e) => orderDrop(e, i)}
+              onDrop={(e) =>
+                dispatch({ type: actions.ORDER_DROP, data: { i, e } })
+              }
             >
               <SplitDisplay
                 split={s}
                 editableTitle={
                   i === selectedItem && status === statuses.EDITING
                 }
-                onEdit={(e) => editUpdate(i, e)}
+                onEdit={(e) =>
+                  dispatch({
+                    type: actions.EDIT_UPDATE,
+                    data: { i, value: e.target.value },
+                  })
+                }
               />
               <ItemButtons
                 index={i}
                 status={status}
                 selectedItem={selectedItem}
-                editItem={editItem}
-                editCancel={editCancel}
-                editSave={editSave}
-                deleteItem={deleteItem}
-                deleteCancel={deleteCancel}
-                deleteConfirm={deleteConfirm}
+                editItem={(i) =>
+                  dispatch({ type: actions.EDIT_ITEM, data: { i } })
+                }
+                editCancel={() => dispatch({ type: actions.EDIT_CANCEL })}
+                editSave={() => dispatch({ type: actions.EDIT_SAVE })}
+                deleteItem={(i) =>
+                  dispatch({ type: actions.DELETE_ITEM, data: { i } })
+                }
+                deleteCancel={() => dispatch({ type: actions.DELETE_CANCEL })}
+                deleteConfirm={() =>
+                  dispatch({ type: actions.DELETE_CONFIRMED })
+                }
               />
             </div>
           ))}
@@ -128,19 +122,24 @@ export default function ManageSplits() {
             <SplitDisplay
               split={newSplit}
               editableTitle
-              onEdit={(e) => addUpdate(e)}
+              onEdit={(e) =>
+                dispatch({
+                  type: actions.ADD_UPDATE,
+                  data: { value: e.target.value },
+                })
+              }
             />
           </div>
         )}
       </div>
       <MainButtons
         status={status}
-        addItem={addItem}
-        addCancel={addCancel}
-        addSave={addSave}
-        orderItems={orderItems}
-        orderSave={orderSave}
-        orderCancel={orderCancel}
+        addItem={() => dispatch({ type: actions.ADD_ITEM })}
+        addCancel={() => dispatch({ type: actions.ADD_CANCEL })}
+        addSave={() => dispatch({ type: actions.ADD_SAVE })}
+        orderItems={() => dispatch({ type: actions.ORDER_ITEMS })}
+        orderSave={() => dispatch({ type: actions.ORDER_SAVE })}
+        orderCancel={() => dispatch({ type: actions.ORDER_CANCEL })}
       />
     </>
   );
