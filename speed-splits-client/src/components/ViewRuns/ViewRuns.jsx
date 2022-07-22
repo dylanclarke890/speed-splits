@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { runStorageKeys } from "../../models/constants";
 import { Run } from "../../models/core";
 import Clone from "../../utils/Clone";
 import Storage from "../../utils/Storage";
@@ -11,11 +10,11 @@ export default function ViewRuns() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setRuns((_) => Storage.Get(runStorageKeys.RUNS) || []);
+    setRuns((_) => Storage.Get(Storage.Keys.RUNS.id) || []);
   }, []);
 
   useEffect(() => {
-    if (runs.length > 0) Storage.AddOrUpdate(runStorageKeys.RUNS, runs);
+    if (runs.length > 0) Storage.AddOrUpdate(Storage.Keys.RUNS.id, runs);
   }, [runs]);
 
   const newRun = () => {
@@ -23,7 +22,7 @@ export default function ViewRuns() {
   };
 
   const editRun = (i) => {
-    Storage.AddOrUpdate(runStorageKeys.SELECTED_RUN, i);
+    Storage.AddOrUpdate(Storage.Keys.SELECTED_RUN.id, i);
     navigate("/edit-run");
   };
 

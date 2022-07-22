@@ -1,19 +1,3 @@
-export const storageKeys = {
-  CURRENT_SPLIT: "currentSplit",
-  CURRENT_TIME: "currentTime",
-  SPLITS: "splits",
-  STATUS: "status",
-  TIMESTAMP_REF: "timestampRef",
-  RECORDED_TIMES: "recordedTimes",
-  ERROR_LOG: "errorLog",
-};
-
-export const runStorageKeys = {
-  SETTINGS: "settings",
-  RUNS: "runs",
-  SELECTED_RUN: "selectedRun",
-};
-
 export const timerActions = {
   INITIALIZE: "initialize",
   START: "start",

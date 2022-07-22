@@ -1,10 +1,8 @@
 import {
   timerActions,
   editRunActions,
-  storageKeys,
   timerStatus,
   editRunStatus,
-  runStorageKeys,
 } from "../../models/constants";
 import { Run, Split } from "../../models/core";
 import Clone from "../Clone";
@@ -32,15 +30,15 @@ export function timerStateReducer(state, action) {
         time = 0,
         timestampRef = 0,
         recordedTimes = [];
-      let splits = Storage.Get(storageKeys.SPLITS, true);
+      let splits = Storage.Get(Storage.Keys.SPLITS.id);
       if (!splits) {
-        splits = Storage.Get(runStorageKeys.SELECTED_RUN, true).splits || [];
+        splits = Storage.Get(Storage.Keys.SELECTED_RUN.id)?.splits || [];
       } else {
-        currentSplit = Storage.Get(storageKeys.CURRENT_SPLIT, true) || 0;
-        status = Storage.Get(storageKeys.STATUS) || statuses.INITIAL;
-        time = Storage.Get(storageKeys.CURRENT_TIME, true) || 0;
-        timestampRef = Storage.Get(storageKeys.TIMESTAMP_REF, true) || 0;
-        recordedTimes = Storage.Get(storageKeys.RECORDED_TIMES, true) || [];
+        currentSplit = Storage.Get(Storage.Keys.CURRENT_SPLIT.id) || 0;
+        status = Storage.Get(Storage.Keys.STATUS.id) || statuses.INITIAL;
+        time = Storage.Get(Storage.Keys.CURRENT_TIME.id) || 0;
+        timestampRef = Storage.Get(Storage.Keys.TIMESTAMP_REF.id) || 0;
+        recordedTimes = Storage.Get(Storage.Keys.RECORDED_TIMES.id) || [];
       }
       newState = {
         time,
@@ -129,48 +127,11 @@ export function timerStateReducer(state, action) {
         timestampRef: 0,
         recordedTimes: [],
       };
-      Storage.DeleteAll(storageKeys); // TODO: Change this
+      Storage.DeleteAll();
       break;
     }
     case timerActions.STOP: {
       newState = { ...state, status: statuses.STOPPED };
-      break;
-    }
-    case timerActions.KEYPRESS: {
-      const { e } = action.data;
-      const status = state.status;
-      const getState = (action) => timerStateReducer(state, { type: action });
-      switch (e.key.toUpperCase()) {
-        case "ENTER":
-        case "P": {
-          if (status === timerStatus.RUNNING || status === timerStatus.PAUSED)
-            newState = getState(timerActions.PAUSE_RESUME);
-          else newState = getState(timerActions.START);
-          break;
-        }
-        case " ": {
-          if (status === timerStatus.PAUSED)
-            newState = getState(timerActions.PAUSE_RESUME);
-          if (status === timerStatus.RUNNING)
-            newState = getState(timerActions.SPLIT);
-          else newState = getState(timerActions.START);
-          break;
-        }
-        case "R": {
-          newState = getState(timerActions.RESET);
-          break;
-        }
-        case "U": {
-          newState = getState(timerActions.UNDO);
-          break;
-        }
-        case "ESCAPE": {
-          newState = getState(timerActions.STOP);
-          break;
-        }
-        default:
-          break;
-      }
       break;
     }
     default:
@@ -181,17 +142,17 @@ export function timerStateReducer(state, action) {
 }
 function saveTimerStateChanges(oldState, newState) {
   if (oldState.currentSplit !== newState.currentSplit)
-    Storage.AddOrUpdate(storageKeys.CURRENT_SPLIT, newState.currentSplit);
+    Storage.AddOrUpdate(Storage.Keys.CURRENT_SPLIT.id, newState.currentSplit);
   if (oldState.currentTime !== newState.currentTime)
-    Storage.AddOrUpdate(storageKeys.CURRENT_TIME, newState.currentTime);
+    Storage.AddOrUpdate(Storage.Keys.CURRENT_TIME.id, newState.currentTime);
   if (oldState.splits !== newState.splits)
-    Storage.AddOrUpdate(storageKeys.SPLITS, newState.splits);
+    Storage.AddOrUpdate(Storage.Keys.SPLITS.id, newState.splits);
   if (oldState.recordedTimes !== newState.recordedTimes)
-    Storage.AddOrUpdate(storageKeys.RECORDED_TIMES, newState.recordedTimes);
+    Storage.AddOrUpdate(Storage.Keys.RECORDED_TIMES.id, newState.recordedTimes);
   if (oldState.status !== newState.status)
-    Storage.AddOrUpdate(storageKeys.STATUS, newState.status);
+    Storage.AddOrUpdate(Storage.Keys.STATUS.id, newState.status);
   if (oldState.timestampRef !== newState.timestampRef)
-    Storage.AddOrUpdate(storageKeys.TIMESTAMP_REF, newState.timestampRef);
+    Storage.AddOrUpdate(Storage.Keys.TIMESTAMP_REF.id, newState.timestampRef);
 }
 
 /**************** EDIT RUN ****************/
@@ -212,13 +173,13 @@ export function editRunReducer(state, action) {
   let newState;
   switch (action.type) {
     case editRunActions.INITIALIZE: {
-      const data = Storage.Get(runStorageKeys.SETTINGS, true);
+      const data = Storage.Get(Storage.Keys.SETTINGS.id);
       if (!data) {
         newState = { ...state };
         break;
       }
-      const runs = Storage.Get(runStorageKeys.RUNS, true);
-      let selectedRun = Storage.Get(runStorageKeys.SELECTED_RUN, true);
+      const runs = Storage.Get(Storage.Keys.RUNS.id);
+      let selectedRun = Storage.Get(Storage.Keys.SELECTED_RUN.id);
 
       if (selectedRun >= 0 && runs.length > 0) {
         data.splits = runs[selectedRun].splits;
@@ -424,9 +385,9 @@ export function editRunReducer(state, action) {
   return newState;
 }
 function saveEditRunStateChanges(oldState, newState) {
-  Storage.AddOrUpdate(runStorageKeys.SETTINGS, newState);
+  Storage.AddOrUpdate(Storage.Keys.SETTINGS.id, newState);
   if (oldState.RUNS !== newState.RUNS)
-    Storage.AddOrUpdate(runStorageKeys.RUNS, newState.runs);
+    Storage.AddOrUpdate(Storage.Keys.RUNS.id, newState.runs);
   if (oldState.SELECTED_RUN !== newState.SELECTED_RUN)
-    Storage.AddOrUpdate(runStorageKeys.SELECTED_RUN, newState.selectedRun);
+    Storage.AddOrUpdate(Storage.Keys.SELECTED_RUN.id, newState.selectedRun);
 }

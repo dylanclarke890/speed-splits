@@ -13,10 +13,41 @@ import TimeDisplay from "../Shared/TimeDisplay/TimeDisplay";
 export default function SplitTimer() {
   const [tState, dispatch] = useReducer(timerStateReducer, initialTimerState);
 
+  const onKeyPress = (e) => {
+    const action = (action) => dispatch({ type: action });
+    const status = tState.status;
+    switch (e.key.toUpperCase()) {
+      case "ENTER":
+      case "P": {
+        if (status === timerStatus.RUNNING || status === timerStatus.PAUSED)
+          action(timerActions.PAUSE_RESUME);
+        else action(timerActions.START);
+        break;
+      }
+      case " ": {
+        if (status === timerStatus.PAUSED) action(timerActions.PAUSE_RESUME);
+        if (status === timerStatus.RUNNING) action(timerActions.SPLIT);
+        else action(timerActions.START);
+        break;
+      }
+      case "R": {
+        action(timerActions.RESET);
+        break;
+      }
+      case "U": {
+        action(timerActions.UNDO);
+        break;
+      }
+      case "ESCAPE": {
+        action(timerActions.STOP);
+        break;
+      }
+      default:
+        break;
+    }
+  };
   useOnInit(() => {
     dispatch({ type: timerActions.INITIALIZE });
-    const onKeyPress = (e) =>
-      dispatch({ type: timerActions.KEYPRESS, data: { e } });
     GlobalEvents.Add("keydown", onKeyPress);
     return () => {
       GlobalEvents.Remove("keydown", onKeyPress);
