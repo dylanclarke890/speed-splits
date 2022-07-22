@@ -1,5 +1,4 @@
 import { ErrorLog } from "../models/core";
-import { storageKeys } from "../models/constants";
 import Storage from "./Storage";
 
 class BaseError extends Error {
@@ -10,11 +9,11 @@ class BaseError extends Error {
   }
 
   Log() {
-    const currentErrors = Storage.Get(storageKeys.ERROR_LOG) || [];
-    Storage.AddOrUpdate(
-      [...currentErrors, new ErrorLog(this.name, this.message, this.stack)],
-      true
-    );
+    const currentErrors = Storage.Get(Storage.Keys.ERROR_LOG.id) || [];
+    Storage.AddOrUpdate([
+      ...currentErrors,
+      new ErrorLog(this.name, this.message, this.stack),
+    ]);
   }
 }
 

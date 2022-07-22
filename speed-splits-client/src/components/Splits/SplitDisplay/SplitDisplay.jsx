@@ -1,4 +1,5 @@
 import React from "react";
+import AutoFocusTextInput from "../../Shared/Inputs/AutoFocusInput";
 import TimeDisplay from "../../Shared/TimeDisplay/TimeDisplay";
 
 export default function SplitDisplay({
@@ -12,13 +13,7 @@ export default function SplitDisplay({
       <div className="d-flex">
         {showTime && <TimeDisplay time={split.time} small />}
         {editableTitle ? (
-          <input
-            className="custom-input"
-            type="text"
-            value={split.title}
-            onChange={onEdit}
-            autoFocus
-          />
+          <AutoFocusTextInput value={split.title} onChange={onEdit} />
         ) : (
           <p className="digits-sm ml-1">{split.title}</p>
         )}

@@ -1,19 +1,3 @@
-export const storageKeys = {
-  CURRENT_SPLIT: "currentSplit",
-  CURRENT_TIME: "currentTime",
-  SPLITS: "splits",
-  STATUS: "status",
-  TIMESTAMP_REF: "timestampRef",
-  RECORDED_TIMES: "recordedTimes",
-  ERROR_LOG: "errorLog",
-};
-
-export const runStorageKeys = {
-  SETTINGS: "settings",
-  RUNS: "runs",
-  SELECTED_RUN: "selectedRun",
-};
-
 export const timerActions = {
   INITIALIZE: "initialize",
   START: "start",
@@ -23,6 +7,7 @@ export const timerActions = {
   UNDO: "undo",
   RESET: "reset",
   STOP: "stop",
+  KEYPRESS: "keyPress",
 };
 
 export const timerStatus = {
@@ -35,26 +20,17 @@ export const timerStatus = {
 export const editRunActions = {
   INITIALIZE: "initialize",
   ADD_ITEM: "addItem",
-  ADD_UPDATE: "addUpdate",
-  ADD_SAVE: "addSave",
-  ADD_CANCEL: "addCancel",
   EDIT_ITEM: "editItem",
-  EDIT_UPDATE: "editUpdate",
-  EDIT_SAVE: "editSave",
-  EDIT_CANCEL: "editCancel",
+  EDIT_TITLE: "editTitle",
   DELETE_ITEM: "deleteItem",
   DELETE_CONFIRMED: "deleteConfirmed",
-  DELETE_CANCEL: "deleteCancel",
   ORDER_ITEMS: "orderItems",
   ORDER_DRAG_START: "orderDrag",
-  ORDER_DRAGOVER: "orderDragOver",
+  ORDER_DRAG_OVER: "orderDragOver",
   ORDER_DROP: "orderDrop",
-  ORDER_SAVE: "orderSave",
-  ORDER_CANCEL: "orderCancel",
-  TITLE_EDIT: "titleEdit",
-  TITLE_UPDATE: "titleUpdate",
-  TITLE_SAVE: "titleSave",
-  TITLE_CANCEL: "titleCancel",
+  UPDATE: "update",
+  CANCEL: "cancel",
+  SAVE: "save",
 };
 
 export const editRunStatus = {
