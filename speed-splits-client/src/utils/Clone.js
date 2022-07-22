@@ -6,10 +6,10 @@ export default class Clone {
 
   /** A more reliable deep copy that can handle Maps and Sets. */
   static Complex(type, hash = new WeakMap()) {
-    const referenceTypes = ["Array", "Object", "Map", "Set", "Date"];
+    const referenceTypesRegEx = "Array|Object|Map|Set|Date";
     const isType = Object.prototype.toString.call(type);
     if (
-      !new RegExp(referenceTypes.join("|")).test(isType) ||
+      !new RegExp(referenceTypesRegEx).test(isType) ||
       type instanceof WeakMap ||
       type instanceof WeakSet
     )
