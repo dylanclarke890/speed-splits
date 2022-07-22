@@ -1,14 +1,13 @@
-import { ArgumentNullError, InvalidOperationError } from "./errors";
+import { ArgumentNullError } from "./errors";
 
 export default class Storage {
-  static AddOrUpdate(name, item, useSerializer = false, allowNulls = true) {
+  static AddOrUpdate(name, item, useSerializer = true, allowNulls = true) {
     ArgumentNullError.Guard("name", name);
-    if (!item && !allowNulls)
-      throw new InvalidOperationError("Adding a null item is not allowed.");
+    if (!allowNulls) ArgumentNullError.Guard("item", item);
     localStorage.setItem(name, useSerializer ? JSON.stringify(item) : item);
   }
 
-  static Get(name, useDeserializer = false) {
+  static Get(name, useDeserializer = true) {
     ArgumentNullError.Guard("name", name);
     const item = localStorage.getItem(name);
     return useDeserializer && item ? JSON.parse(item) : item;

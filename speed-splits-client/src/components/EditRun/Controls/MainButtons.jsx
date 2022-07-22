@@ -9,11 +9,9 @@ const MainButton = ({ text, onClick }) => (
 export default function MainButtons({
   status,
   addItem,
-  addSave,
-  addCancel,
   orderItems,
-  orderSave,
-  orderCancel,
+  save,
+  cancel,
 }) {
   const buttons = [];
   switch (status) {
@@ -24,15 +22,10 @@ export default function MainButtons({
       );
       break;
     case statuses.ADDING:
-      buttons.push(
-        <MainButton onClick={addSave} text="Save" />,
-        <MainButton onClick={addCancel} text="Cancel" />
-      );
-      break;
     case statuses.ORDERING:
       buttons.push(
-        <MainButton onClick={orderSave} text="Save" />,
-        <MainButton onClick={orderCancel} text="Cancel" />
+        <MainButton onClick={save} text="Save" />,
+        <MainButton onClick={cancel} text="Cancel" />
       );
       break;
     default:

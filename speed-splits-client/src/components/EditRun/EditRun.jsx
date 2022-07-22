@@ -1,33 +1,22 @@
-import React from "react";
-import { useReducer } from "react";
-import { useEffect } from "react";
-import { Split } from "../../models/core";
+import React, { useReducer, useEffect } from "react";
+import {
+  initialEditRunState,
+  editRunReducer,
+} from "../../utils/react/reducers";
 import {
   editRunActions as actions,
   editRunStatus as statuses,
 } from "../../models/constants";
 import SplitDisplay from "../Splits/SplitDisplay/SplitDisplay";
-import { editRunReducer } from "../../utils/react/reducers";
 import ItemButtons from "./Controls/ItemButtons";
 import MainButtons from "./Controls/MainButtons";
-
-const initialState = {
-  droppedItem: -1,
-  newSplit: new Split(),
-  originalTitle: "",
-  originalOrder: null,
-  runs: [],
-  selectedItem: -1,
-  selectedRun: -1,
-  status: statuses.INITIAL,
-  splits: [],
-};
+import AutoFocusTextInput from "../Shared/Inputs/AutoFocusInput";
 
 export default function ManageSplits() {
   const [
     { splits, status, selectedItem, newSplit, runs, selectedRun },
     dispatch,
-  ] = useReducer(editRunReducer, initialState);
+  ] = useReducer(editRunReducer, initialEditRunState);
 
   useEffect(() => {
     dispatch({ type: actions.INITIALIZE });
@@ -38,33 +27,30 @@ export default function ManageSplits() {
     <>
       {status === statuses.EDITING_TITLE ? (
         <>
-          <input
-            className="custom-input"
-            type="text"
+          <AutoFocusTextInput
             value={title}
             onChange={(e) =>
               dispatch({
-                type: actions.TITLE_UPDATE,
+                type: actions.UPDATE,
                 data: { value: e.target.value },
               })
             }
-            autoFocus
           />
           <button
             className="btn"
-            onClick={() => dispatch({ type: actions.TITLE_SAVE })}
+            onClick={() => dispatch({ type: actions.SAVE })}
           >
             Save
           </button>
           <button
             className="btn"
-            onClick={() => dispatch({ type: actions.TITLE_CANCEL })}
+            onClick={() => dispatch({ type: actions.CANCEL })}
           >
             Cancel
           </button>
         </>
       ) : (
-        <h2 onClick={() => dispatch({ type: actions.TITLE_EDIT })}>{title}</h2>
+        <h2 onClick={() => dispatch({ type: actions.EDIT_TITLE })}>{title}</h2>
       )}
 
       <div>
@@ -80,7 +66,7 @@ export default function ManageSplits() {
               }
               onDragOver={(e) => {
                 e.preventDefault();
-                dispatch({ type: actions.ORDER_DRAGOVER, data: { i, e } });
+                dispatch({ type: actions.ORDER_DRAG_OVER, data: { i, e } });
               }}
               onDrop={(e) =>
                 dispatch({ type: actions.ORDER_DROP, data: { i, e } })
@@ -89,11 +75,11 @@ export default function ManageSplits() {
               <SplitDisplay
                 split={s}
                 editableTitle={
-                  i === selectedItem && status === statuses.EDITING
+                  status === statuses.EDITING && i === selectedItem
                 }
                 onEdit={(e) =>
                   dispatch({
-                    type: actions.EDIT_UPDATE,
+                    type: actions.UPDATE,
                     data: { i, value: e.target.value },
                   })
                 }
@@ -105,15 +91,14 @@ export default function ManageSplits() {
                 editItem={(i) =>
                   dispatch({ type: actions.EDIT_ITEM, data: { i } })
                 }
-                editCancel={() => dispatch({ type: actions.EDIT_CANCEL })}
-                editSave={() => dispatch({ type: actions.EDIT_SAVE })}
                 deleteItem={(i) =>
                   dispatch({ type: actions.DELETE_ITEM, data: { i } })
                 }
-                deleteCancel={() => dispatch({ type: actions.DELETE_CANCEL })}
                 deleteConfirm={() =>
                   dispatch({ type: actions.DELETE_CONFIRMED })
                 }
+                save={() => dispatch({ type: actions.SAVE })}
+                cancel={() => dispatch({ type: actions.CANCEL })}
               />
             </div>
           ))}
@@ -124,7 +109,7 @@ export default function ManageSplits() {
               editableTitle
               onEdit={(e) =>
                 dispatch({
-                  type: actions.ADD_UPDATE,
+                  type: actions.UPDATE,
                   data: { value: e.target.value },
                 })
               }
@@ -135,11 +120,9 @@ export default function ManageSplits() {
       <MainButtons
         status={status}
         addItem={() => dispatch({ type: actions.ADD_ITEM })}
-        addCancel={() => dispatch({ type: actions.ADD_CANCEL })}
-        addSave={() => dispatch({ type: actions.ADD_SAVE })}
         orderItems={() => dispatch({ type: actions.ORDER_ITEMS })}
-        orderSave={() => dispatch({ type: actions.ORDER_SAVE })}
-        orderCancel={() => dispatch({ type: actions.ORDER_CANCEL })}
+        save={() => dispatch({ type: actions.SAVE })}
+        cancel={() => dispatch({ type: actions.CANCEL })}
       />
     </>
   );

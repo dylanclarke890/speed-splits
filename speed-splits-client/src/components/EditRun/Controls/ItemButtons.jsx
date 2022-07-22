@@ -12,11 +12,10 @@ export default function ItemButtons({
   selectedItem,
   status,
   editItem,
-  editSave,
-  editCancel,
   deleteItem,
   deleteConfirm,
-  deleteCancel,
+  save,
+  cancel,
 }) {
   const buttons = [];
   const isSelected = index === selectedItem;
@@ -30,8 +29,8 @@ export default function ItemButtons({
     case statuses.EDITING:
       if (isSelected) {
         buttons.push(
-          <ItemButton text="Save" onClick={editSave} />,
-          <ItemButton text="Cancel" onClick={editCancel} />
+          <ItemButton text="Save" onClick={save} />,
+          <ItemButton text="Cancel" onClick={cancel} />
         );
       }
       break;
@@ -39,7 +38,7 @@ export default function ItemButtons({
       if (isSelected)
         buttons.push(
           <ItemButton text="Confirm" onClick={deleteConfirm} />,
-          <ItemButton text="Cancel" onClick={deleteCancel} />
+          <ItemButton text="Cancel" onClick={cancel} />
         );
       break;
     default:
