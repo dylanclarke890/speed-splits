@@ -7,6 +7,7 @@ import {
   runStorageKeys,
 } from "../../models/constants";
 import { Run, Split } from "../../models/core";
+import Clone from "../Clone";
 import { ReducerError } from "../errors";
 import { Time } from "../formatting";
 import Storage from "../Storage";
@@ -289,9 +290,7 @@ export function editRunReducer(state, action) {
       newState = {
         ...state,
         status: statuses.ORDERING,
-        // create a deep copy of the original splits
-        // in case the user wants to cancel later.
-        originalOrder: JSON.parse(JSON.stringify(state.splits)),
+        originalOrder: Clone.Simple(state.splits),
       };
       break;
     }

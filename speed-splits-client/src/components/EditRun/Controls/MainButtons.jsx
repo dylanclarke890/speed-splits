@@ -13,29 +13,26 @@ export default function MainButtons({
   save,
   cancel,
 }) {
-  const buttons = [];
+  const buttons = {
+    add: { name: "Add", onClick: addItem },
+    order: { name: "Reorder", onClick: orderItems },
+    save: { name: "Save", onClick: save },
+    cancel: { name: "Cancel", onClick: cancel },
+  };
+
+  const activeButtons = [];
   switch (status) {
     case statuses.INITIAL:
-      buttons.push(
-        <MainButton onClick={addItem} text="Add" />,
-        <MainButton onClick={orderItems} text="Reorder" />
-      );
+      activeButtons.push(buttons.add, buttons.order);
       break;
     case statuses.ADDING:
     case statuses.ORDERING:
-      buttons.push(
-        <MainButton onClick={save} text="Save" />,
-        <MainButton onClick={cancel} text="Cancel" />
-      );
+      activeButtons.push(buttons.save, buttons.cancel);
       break;
     default:
       break;
   }
-  return buttons.map((b) => (
-    <MainButton
-      key={b.props.text}
-      onClick={b.props.onClick}
-      text={b.props.text}
-    />
+  return activeButtons.map((b) => (
+    <MainButton key={b.name} onClick={b.onClick} text={b.name} />
   ));
 }

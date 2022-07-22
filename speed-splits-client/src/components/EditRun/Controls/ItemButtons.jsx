@@ -17,39 +17,32 @@ export default function ItemButtons({
   save,
   cancel,
 }) {
-  const buttons = [];
+  const buttons = {
+    editItem: { name: "Edit", onClick: () => editItem(index) },
+    deleteItem: { name: "Delete", onClick: () => deleteItem(index) },
+    deleteConfirm: { name: "Confirm", onClick: deleteConfirm },
+    save: { name: "Save", onClick: save },
+    cancel: { name: "Cancel", onClick: cancel },
+  };
+
+  const activeButtons = [];
   const isSelected = index === selectedItem;
   switch (status) {
     case statuses.INITIAL:
-      buttons.push(
-        <ItemButton text="Edit" onClick={() => editItem(index)} />,
-        <ItemButton text="Delete" onClick={() => deleteItem(index)} />
-      );
+      activeButtons.push(buttons.editItem, buttons.deleteItem);
       break;
     case statuses.EDITING:
-      if (isSelected) {
-        buttons.push(
-          <ItemButton text="Save" onClick={save} />,
-          <ItemButton text="Cancel" onClick={cancel} />
-        );
-      }
+      if (isSelected) activeButtons.push(buttons.save, buttons.cancel);
       break;
     case statuses.DELETING:
       if (isSelected)
-        buttons.push(
-          <ItemButton text="Confirm" onClick={deleteConfirm} />,
-          <ItemButton text="Cancel" onClick={cancel} />
-        );
+        activeButtons.push(activeButtons.push(buttons.save, buttons.cancel));
       break;
     default:
       break;
   }
 
-  return buttons.map((b) => (
-    <ItemButton
-      key={b.props.text}
-      onClick={b.props.onClick}
-      text={b.props.text}
-    />
+  return activeButtons.map((b) => (
+    <ItemButton key={b.name} onClick={b.onClick} text={b.name} />
   ));
 }
