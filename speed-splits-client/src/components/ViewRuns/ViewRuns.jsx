@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Run } from "../../models/core";
-import Clone from "../../utils/Clone";
-import Storage from "../../utils/Storage";
+import { Run } from "../../services/utils/global/models";
+import Clone from "../../services/utils/objectHandling/clone";
+import Storage from "../../services/utils/global/storage";
 import "./ViewRuns.css";
 
 export default function ViewRuns() {

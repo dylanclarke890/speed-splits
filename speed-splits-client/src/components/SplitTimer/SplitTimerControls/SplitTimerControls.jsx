@@ -1,5 +1,5 @@
 import React from "react";
-import { timerStatus } from "../../../models/constants";
+import { timerStatus as statuses } from "../../../services/reducers/splitTimerReducer";
 import "./SplitTimerControls.css";
 
 const TimerBtn = ({ name, isMain, onClick }) => (
@@ -24,7 +24,7 @@ export default function SplitTimerControls({
     split: { name: "Split", onClick: onSplit, isMain: false },
     undo: { name: "Undo", onClick: onUndo, isMain: false },
     pauseResume: {
-      name: status === timerStatus.PAUSED ? "Resume" : "Pause",
+      name: status === statuses.PAUSED ? "Resume" : "Pause",
       onClick: onPauseResume,
       isMain: true,
     },
@@ -32,16 +32,16 @@ export default function SplitTimerControls({
 
   const activeButtons = [];
   switch (status) {
-    case timerStatus.INITIAL:
+    case statuses.INITIAL:
       activeButtons.push(buttons.start);
       break;
-    case timerStatus.RUNNING:
+    case statuses.RUNNING:
       activeButtons.push(buttons.pauseResume, buttons.split, buttons.undo);
       break;
-    case timerStatus.PAUSED:
+    case statuses.PAUSED:
       activeButtons.push(buttons.pauseResume, buttons.stop);
       break;
-    case timerStatus.STOPPED:
+    case statuses.STOPPED:
       activeButtons.push(buttons.reset);
       break;
     default:

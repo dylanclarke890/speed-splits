@@ -1,4 +1,4 @@
-import { InvalidOperationError } from "./errors";
+import { InvalidOperationError } from "../global/errors";
 
 export class Time {
   static toString(time, format) {

@@ -7,7 +7,7 @@ export class Run {
 
 export class Split {
   constructor(title, time, order) {
-    this.title = title || order;
+    this.title = title || "";
     this.time = time || 0;
     this.order = order || 0;
   }

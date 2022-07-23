@@ -1,5 +1,5 @@
-import { ErrorLog } from "../models/core";
-import Storage from "./Storage";
+import { ErrorLog } from "./models";
+import Storage from "./storage";
 
 class BaseError extends Error {
   constructor(message) {

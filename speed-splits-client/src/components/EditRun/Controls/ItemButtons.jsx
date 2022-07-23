@@ -1,5 +1,5 @@
 import React from "react";
-import { editRunStatus as statuses } from "../../../models/constants";
+import { editRunStatus as statuses } from "../../../services/reducers/editRunReducer";
 
 const ItemButton = ({ text, onClick }) => (
   <button onClick={onClick} className="app-link">

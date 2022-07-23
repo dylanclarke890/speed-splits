@@ -1,5 +1,5 @@
 import React from "react";
-import { Time } from "../../../utils/formatting";
+import { Time } from "../../../services/utils/dateTime/time";
 
 export default function TimeDisplay({ time, small }) {
   const classes = `digits text-center d-flex place-i-center justify-center ${

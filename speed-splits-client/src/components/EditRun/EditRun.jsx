@@ -2,11 +2,9 @@ import React, { useReducer, useEffect } from "react";
 import {
   initialEditRunState,
   editRunReducer,
-} from "../../utils/react/reducers";
-import {
   editRunActions as actions,
   editRunStatus as statuses,
-} from "../../models/constants";
+} from "../../services/utils/global/constants";
 import SplitDisplay from "../Splits/SplitDisplay/SplitDisplay";
 import ItemButtons from "./Controls/ItemButtons";
 import MainButtons from "./Controls/MainButtons";
