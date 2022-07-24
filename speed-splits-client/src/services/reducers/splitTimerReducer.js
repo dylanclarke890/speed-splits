@@ -137,6 +137,47 @@ export function splitTimerReducer(state, action) {
       newState = { ...state, status: statuses.STOPPED };
       break;
     }
+    case timerActions.KEYPRESS: {
+      const { status } = state,
+        { e } = action.data,
+        dispatch = (action) =>
+          (newState = splitTimerReducer(state, { type: action })),
+        noAction = () => (newState = state);
+      switch (e.code) {
+        case "Enter": {
+          if (status === statuses.INITIAL) dispatch(timerActions.START);
+          else noAction();
+          break;
+        }
+        case "KeyS": {
+          if (status === statuses.RUNNING) dispatch(timerActions.SPLIT);
+          else noAction();
+          break;
+        }
+        case "Space": {
+          if (status === statuses.RUNNING || status === statuses.PAUSED)
+            dispatch(timerActions.PAUSE_RESUME);
+          else noAction();
+          break;
+        }
+        case "KeyR": {
+          dispatch(timerActions.RESET);
+          break;
+        }
+        case "KeyU": {
+          dispatch(timerActions.UNDO);
+          break;
+        }
+        case "Escape": {
+          dispatch(timerActions.STOP);
+          break;
+        }
+        default:
+          noAction();
+          break;
+      }
+      break;
+    }
     default:
       throw new ReducerError(action.type);
   }
