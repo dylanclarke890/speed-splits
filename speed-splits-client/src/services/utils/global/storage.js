@@ -14,6 +14,7 @@ export default class Storage {
     SETTINGS: { id: "settings", temporary: false },
     RUNS: { id: "runs", temporary: false },
     SELECTED_RUN: { id: "selectedRun", temporary: false },
+    KEY_BINDS: { id: "keyBinds", temporary: false },
   };
 
   static AddOrUpdate(name, item, useSerializer = true, errorOnNull = false) {
