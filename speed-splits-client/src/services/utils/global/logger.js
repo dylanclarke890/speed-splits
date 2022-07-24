@@ -10,7 +10,7 @@ export default class Logger {
   static #logFor = {
     sources: [],
     actions: [],
-    ids: ["timestampRef"],
+    ids: [],
   };
 
   static Error(name, message, stack) {
@@ -21,15 +21,16 @@ export default class Logger {
   }
 
   static Info({ source, action, msg, extraData }) {
-    const sourceName = source?.constructor?.name;
+    if (!this.writeLogs) return;
+    let sourceName = source?.constructor?.name;
+    if (!sourceName) sourceName = new Error().stack; // hacky way to get the rough caller of a function
     const { sources, actions, ids } = this.#logFor;
     const canLog =
-      this.writeLogs &&
       (!sources.length || sources.some((val) => val === source)) &&
       (!actions.length || actions.some((val) => val === action)) &&
       (!ids.length || ids.some((val) => val === extraData.id));
-    if (!canLog) return;
 
+    if (!canLog) return;
     const baseLog = `${sourceName} (${action})- ${msg}.`;
     let log = baseLog;
     if (extraData) {

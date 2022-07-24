@@ -34,7 +34,7 @@ export default class Storage {
     const store = this.#getStore(key);
     const val = store.getItem(key.id);
     const value =
-      useDeserializer && Compare.HasValue(val) ? JSON.parse(val) : val;
+      useDeserializer && Compare.IsNotNull(val) ? JSON.parse(val) : val;
     this.#log("getFromStorage", key.id, value, "END");
     return value;
   }
@@ -80,7 +80,7 @@ export default class Storage {
       }
     }
     if (ensureValid) ArgumentNullError.Guard("foundKey", foundKey);
-    if (Compare.HasValue(foundKey)) {
+    if (Compare.IsNotNull(foundKey)) {
       this.#foundKeys[name] = { key: foundKey, requestCount: 1 };
     }
     this.#log("getKey", name, this.#foundKeys[name], "END");

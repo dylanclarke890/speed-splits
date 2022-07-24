@@ -261,8 +261,8 @@ export function editRunReducer(state, action) {
 
 function saveStateChanges(oldState, newState) {
   Storage.AddOrUpdate(Storage.Keys.SETTINGS.id, newState);
-  if (Compare.IsEqual(oldState.runs, newState.runs))
+  if (Compare.IsNotEqual(oldState.runs, newState.runs))
     Storage.AddOrUpdate(Storage.Keys.RUNS.id, newState.runs);
-  if (Compare.IsEqual(oldState.selectedRun, newState.selectedRun))
+  if (Compare.IsNotEqual(oldState.selectedRun, newState.selectedRun))
     Storage.AddOrUpdate(Storage.Keys.SELECTED_RUN.id, newState.selectedRun);
 }

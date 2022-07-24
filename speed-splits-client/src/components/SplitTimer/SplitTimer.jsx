@@ -13,7 +13,7 @@ import TimeDisplay from "../Shared/TimeDisplay/TimeDisplay";
 
 export default function SplitTimer() {
   const [state, dispatch] = useReducer(splitTimerReducer, initialTimerState);
-  const { time, splits, status } = state;
+  const { currentTime, splits, status } = state;
 
   const onKeyPress = (e) => {
     const action = (action) => dispatch({ type: action });
@@ -68,7 +68,7 @@ export default function SplitTimer() {
   return (
     <>
       <div>
-        <TimeDisplay time={time} />
+        <TimeDisplay time={currentTime} />
         <SplitsList splits={splits} />
         <SplitTimerControls
           status={status}
