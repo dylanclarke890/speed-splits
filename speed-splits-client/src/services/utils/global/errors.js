@@ -8,7 +8,7 @@ class BaseError extends Error {
   }
 
   #log() {
-    Logger.LogError(this.name, this.message, this.stack);
+    Logger.Error(this.name, this.message, this.stack);
   }
 }
 

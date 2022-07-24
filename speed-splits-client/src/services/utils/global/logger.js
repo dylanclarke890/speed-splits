@@ -13,7 +13,7 @@ export default class Logger {
     ids: ["timestampRef"],
   };
 
-  static LogError(name, message, stack) {
+  static Error(name, message, stack) {
     const currentErrorLogs = Storage.Get(Storage.Keys.ERROR_LOG.id) || [];
     const newErrorLog = new ErrorLog(name, message, stack);
     Storage.AddOrUpdate([...currentErrorLogs, newErrorLog]);

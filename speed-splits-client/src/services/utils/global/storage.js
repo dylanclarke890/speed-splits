@@ -95,7 +95,7 @@ export default class Storage {
   static #log(action, id, value, msg) {
     const requestCount = this.#foundKeys[id]?.requestCount || 0;
     Logger.Info({
-      source: new Storage(),
+      source: new this(),
       action,
       msg,
       extraData: {
