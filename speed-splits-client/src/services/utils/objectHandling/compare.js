@@ -4,7 +4,7 @@ export default class Compare {
   }
 
   static HasValue(obj) {
-    return !this.HasValue(obj);
+    return obj !== null && obj !== undefined;
   }
 
   static IsSameRefOrEqual(a, b) {
