@@ -22,7 +22,7 @@ export const timerStatus = {
   STOPPED: "stopped",
 };
 
-const defaultKeyBinds = {
+export const defaultTimerKeyBinds = {
   START: "Enter",
   PAUSE_RESUME: "Space",
   SPLIT: "KeyS",
@@ -153,7 +153,7 @@ export function splitTimerReducer(state, action) {
           (newState = splitTimerReducer(state, { type: action })),
         noAction = () => (newState = state);
       const keyBinds =
-        Storage.Get(Storage.Keys.KEY_BINDS.id) || defaultKeyBinds;
+        Storage.Get(Storage.Keys.KEY_BINDS.id) || defaultTimerKeyBinds;
       switch (e.code) {
         case keyBinds.START: {
           if (status === statuses.INITIAL) dispatch(timerActions.START);
