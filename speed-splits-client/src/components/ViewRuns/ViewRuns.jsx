@@ -42,13 +42,11 @@ export default function ViewRuns() {
   };
 
   const confirmDeleteRun = () => {
-    console.log(deletingId);
     const run = runs[deletingId];
     const newRuns = runs.filter((r) => r !== run);
     setRuns((_) => [...newRuns]);
     setDeletingId(-1);
   };
-  console.log(deletingId);
 
   return (
     <>
