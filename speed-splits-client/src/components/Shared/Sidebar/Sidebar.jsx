@@ -11,8 +11,12 @@ export default function Sidebar() {
       <div className="sidebar">
         <div className="sidebar-actions">
           <AppLink to="/splits">Splits</AppLink>
-          <AppLink to="/advanced">Advanced</AppLink>
-          {location.pathname !== "/" && <button className="app-link" onClick={() => navigate(-1)}>Back</button>}
+          <AppLink to="/settings">Advanced</AppLink>
+          {location.pathname !== "/" && (
+            <button className="app-link" onClick={() => navigate("/")}>
+              Back to SplitTimer
+            </button>
+          )}
         </div>
       </div>
     </>

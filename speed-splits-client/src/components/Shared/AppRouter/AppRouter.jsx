@@ -5,12 +5,14 @@ import NotFound from "../Layouts/NotFound";
 import SplitTimer from "../../SplitTimer/SplitTimer";
 import EditRun from "../../EditRun/EditRun";
 import ViewRuns from "../../ViewRuns/ViewRuns";
+import Settings from "../../Settings/Settings";
 
 export default function AppRouter() {
   const routes = [
     ["", <SplitTimer />],
     ["/splits", <ViewRuns />],
     ["/edit-run", <EditRun />],
+    ["/settings", <Settings />],
   ];
   return (
     <Routes>

@@ -22,6 +22,15 @@ export const timerStatus = {
   STOPPED: "stopped",
 };
 
+export const defaultTimerKeyBinds = {
+  START: { displayName: "Start", code: "Enter" },
+  PAUSE_RESUME: { displayName: "Pause/Resume", code: "Space" },
+  SPLIT: { displayName: "Split", code: "KeyS" },
+  UNDO: { displayName: "Undo Split", code: "KeyU" },
+  RESET: { displayName: "Reset", code: "KeyR" },
+  STOP: { displayName: "Stop", code: "Escape" },
+};
+
 export const initialTimerState = {
   status: timerStatus.INITIAL,
   splits: [],
@@ -143,32 +152,34 @@ export function splitTimerReducer(state, action) {
         dispatch = (action) =>
           (newState = splitTimerReducer(state, { type: action })),
         noAction = () => (newState = state);
+      const keyBinds =
+        Storage.Get(Storage.Keys.KEY_BINDS.id) || defaultTimerKeyBinds;
       switch (e.code) {
-        case "Enter": {
+        case keyBinds.START.code: {
           if (status === statuses.INITIAL) dispatch(timerActions.START);
           else noAction();
           break;
         }
-        case "KeyS": {
+        case keyBinds.SPLIT.code: {
           if (status === statuses.RUNNING) dispatch(timerActions.SPLIT);
           else noAction();
           break;
         }
-        case "Space": {
+        case keyBinds.PAUSE_RESUME.code: {
           if (status === statuses.RUNNING || status === statuses.PAUSED)
             dispatch(timerActions.PAUSE_RESUME);
           else noAction();
           break;
         }
-        case "KeyR": {
+        case keyBinds.RESET.code: {
           dispatch(timerActions.RESET);
           break;
         }
-        case "KeyU": {
+        case keyBinds.UNDO.code: {
           dispatch(timerActions.UNDO);
           break;
         }
-        case "Escape": {
+        case keyBinds.STOP.code: {
           dispatch(timerActions.STOP);
           break;
         }
