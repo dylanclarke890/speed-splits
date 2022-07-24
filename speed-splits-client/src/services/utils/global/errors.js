@@ -52,6 +52,7 @@ export class ArgumentNullError extends BaseError {
   }
 
   static Guard(name, value) {
-    if (!value) throw new ArgumentNullError(name);
+    if (value === null || value === undefined)
+      throw new ArgumentNullError(name);
   }
 }

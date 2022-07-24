@@ -2,6 +2,7 @@ import { ReducerError } from "../utils/global/errors";
 import Storage from "../utils/global/storage";
 import Clone from "../utils/objectHandling/clone";
 import { Split, Run } from "../utils/global/models";
+import Compare from "../utils/objectHandling/compare";
 
 export const editRunActions = {
   INITIALIZE: "initialize",
@@ -53,8 +54,8 @@ export function editRunReducer(state, action) {
       }
       const runs = Storage.Get(Storage.Keys.RUNS.id);
       let selectedRun = Storage.Get(Storage.Keys.SELECTED_RUN.id);
-
-      if (selectedRun >= 0 && runs.length > 0) {
+      if (runs.length) {
+        selectedRun = selectedRun > -1 ? selectedRun : 0;
         data.splits = runs[selectedRun].splits;
       } else {
         selectedRun = 0;
@@ -260,8 +261,8 @@ export function editRunReducer(state, action) {
 
 function saveStateChanges(oldState, newState) {
   Storage.AddOrUpdate(Storage.Keys.SETTINGS.id, newState);
-  if (oldState.RUNS !== newState.RUNS)
+  if (Compare.IsEqual(oldState.runs, newState.runs))
     Storage.AddOrUpdate(Storage.Keys.RUNS.id, newState.runs);
-  if (oldState.SELECTED_RUN !== newState.SELECTED_RUN)
+  if (Compare.IsEqual(oldState.selectedRun, newState.selectedRun))
     Storage.AddOrUpdate(Storage.Keys.SELECTED_RUN.id, newState.selectedRun);
 }
