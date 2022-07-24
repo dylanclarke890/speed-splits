@@ -4,9 +4,11 @@ import { Run } from "../../services/utils/global/models";
 import Clone from "../../services/utils/objectHandling/clone";
 import Storage from "../../services/utils/global/storage";
 import "./ViewRuns.css";
+import Dialog from "../Shared/Dialog/Dialog";
 
 export default function ViewRuns() {
   const [runs, setRuns] = useState([]);
+  const [deletingId, setDeletingId] = useState(-1);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,10 +34,21 @@ export default function ViewRuns() {
   };
 
   const deleteRun = (i) => {
-    const run = runs[i];
+    setDeletingId((_) => i);
+  };
+
+  const cancelDeleteRun = () => {
+    setDeletingId((_) => -1);
+  };
+
+  const confirmDeleteRun = () => {
+    console.log(deletingId);
+    const run = runs[deletingId];
     const newRuns = runs.filter((r) => r !== run);
     setRuns((_) => [...newRuns]);
+    setDeletingId(-1);
   };
+  console.log(deletingId);
 
   return (
     <>
@@ -59,6 +72,19 @@ export default function ViewRuns() {
             </div>
           </div>
         ))}
+
+        {deletingId >= 0 && (
+          <Dialog
+            content={
+              <p className="text-center">
+                Are you sure you want to delete this run?
+              </p>
+            }
+            onConfirm={confirmDeleteRun}
+            onCancel={cancelDeleteRun}
+            small
+          />
+        )}
       </div>
     </>
   );
