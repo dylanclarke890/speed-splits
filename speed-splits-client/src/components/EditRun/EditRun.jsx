@@ -4,17 +4,15 @@ import {
   editRunReducer,
   editRunActions as actions,
   editRunStatus as statuses,
-} from "../../services/utils/global/constants";
+} from "../../services/reducers/editRunReducer";
 import SplitDisplay from "../Splits/SplitDisplay/SplitDisplay";
 import ItemButtons from "./Controls/ItemButtons";
 import MainButtons from "./Controls/MainButtons";
 import AutoFocusTextInput from "../Shared/Inputs/AutoFocusInput";
 
-export default function ManageSplits() {
-  const [
-    { splits, status, selectedItem, newSplit, runs, selectedRun },
-    dispatch,
-  ] = useReducer(editRunReducer, initialEditRunState);
+export default function EditRun() {
+  const [state, dispatch] = useReducer(editRunReducer, initialEditRunState);
+  const { splits, status, selectedItem, newSplit, runs, selectedRun } = state;
 
   useEffect(() => {
     dispatch({ type: actions.INITIALIZE });

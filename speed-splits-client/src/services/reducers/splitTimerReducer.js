@@ -1,6 +1,7 @@
 import { ReducerError } from "../utils/global/errors";
-import { Time } from "../utils/dateTime/time";
 import Storage from "../utils/global/storage";
+import { Time } from "../utils/dateTime/time";
+import Compare from "../utils/objectHandling/compare";
 
 export const timerActions = {
   INITIALIZE: "initialize",
@@ -152,16 +153,16 @@ export function splitTimerReducer(state, action) {
 }
 
 function saveStateChanges(oldState, newState) {
-  if (oldState.currentSplit !== newState.currentSplit)
+  if (Compare.IsEqual(oldState.currentSplit, newState.currentSplit))
     Storage.AddOrUpdate(Storage.Keys.CURRENT_SPLIT.id, newState.currentSplit);
-  if (oldState.currentTime !== newState.currentTime)
+  if (Compare.IsEqual(oldState.currentTime, newState.currentTime))
     Storage.AddOrUpdate(Storage.Keys.CURRENT_TIME.id, newState.currentTime);
-  if (oldState.splits !== newState.splits)
+  if (Compare.IsEqual(oldState.splits, newState.splits))
     Storage.AddOrUpdate(Storage.Keys.SPLITS.id, newState.splits);
-  if (oldState.recordedTimes !== newState.recordedTimes)
+  if (Compare.IsEqual(oldState.recordedTimes, newState.recordedTimes))
     Storage.AddOrUpdate(Storage.Keys.RECORDED_TIMES.id, newState.recordedTimes);
-  if (oldState.status !== newState.status)
+  if (Compare.IsEqual(oldState.status, newState.status))
     Storage.AddOrUpdate(Storage.Keys.STATUS.id, newState.status);
-  if (oldState.timestampRef !== newState.timestampRef)
+  if (Compare.IsEqual(oldState.timestampRef, newState.timestampRef))
     Storage.AddOrUpdate(Storage.Keys.TIMESTAMP_REF.id, newState.timestampRef);
 }

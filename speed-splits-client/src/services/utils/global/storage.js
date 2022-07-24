@@ -1,3 +1,4 @@
+import Compare from "../objectHandling/compare";
 import { ArgumentNullError } from "./errors";
 
 export default class Storage {
@@ -14,10 +15,12 @@ export default class Storage {
     SELECTED_RUN: { id: "selectedRun", temporary: false },
   };
 
-  static AddOrUpdate(name, item, useSerializer = true, allowNulls = true) {
+  static AddOrUpdate(name, item, useSerializer = true, errorOnNull = false) {
     this.#log("addOrUpdate", name, item, "START");
+    if (errorOnNull) ArgumentNullError.Guard("item", item);
+    else if (Compare.IsNull(item)) return;
+
     const key = this.#getKey(name);
-    if (!allowNulls) ArgumentNullError.Guard("item", item);
     const value = useSerializer ? JSON.stringify(item) : item;
     const store = this.#getStore(key);
     store.setItem(key.id, value);
@@ -29,7 +32,8 @@ export default class Storage {
     const key = this.#getKey(name);
     const store = this.#getStore(key);
     const val = store.getItem(key.id);
-    const value = useDeserializer && val ? JSON.parse(val) : val;
+    const value =
+      useDeserializer && Compare.HasValue(val) ? JSON.parse(val) : val;
     this.#log("getFromStorage", key.id, value, "END");
     return value;
   }
@@ -75,7 +79,9 @@ export default class Storage {
       }
     }
     if (ensureValid) ArgumentNullError.Guard("foundKey", foundKey);
-    if (foundKey) this.#foundKeys[name] = { key: foundKey, requestCount: 1 };
+    if (Compare.HasValue(foundKey)) {
+      this.#foundKeys[name] = { key: foundKey, requestCount: 1 };
+    }
     this.#log("getKey", name, this.#foundKeys[name], "END");
     return foundKey;
   }
@@ -85,11 +91,17 @@ export default class Storage {
   }
 
   /** Set to true to enable logging. */
-  static #logActions = false;
+  static #LOG_ACTIONS = true;
 
   /** If empty, will log for all actions, else will only log for the specified actions. */
   static #logForActions = [
     /* e.g "getKey", ...*/
+  ];
+
+  /** If empty, will log for all ids, else will only log for the specified ids. */
+  static #logForIds = [
+    /* e.g "selectedRun" */
+    "selectedRun",
   ];
 
   /** Helper function for debugging. */
@@ -97,12 +109,14 @@ export default class Storage {
     value = JSON.stringify(value);
     const reqCount = this.#foundKeys[id]?.requestCount || 0;
     const canLog =
-      this.#logActions &&
+      this.#LOG_ACTIONS &&
       (!this.#logForActions.length ||
-        this.#logForActions.some((val) => val === action));
-    if (canLog)
-      console.info(
-        `(${id}) ${action} - msg: ${msg}, val: ${value}, requestCount: ${reqCount}`
-      );
+        this.#logForActions.some((val) => val === action)) &&
+      (!this.#logForIds.length || this.#logForIds.some((val) => val === id));
+
+    if (canLog) {
+      const log = `(${id}) ${action} - msg: ${msg}, val: ${value}, requestCount: ${reqCount}`;
+      console.info(log);
+    }
   }
 }

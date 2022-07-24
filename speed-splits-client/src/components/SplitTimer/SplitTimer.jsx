@@ -12,11 +12,11 @@ import SplitTimerControls from "./SplitTimerControls/SplitTimerControls";
 import TimeDisplay from "../Shared/TimeDisplay/TimeDisplay";
 
 export default function SplitTimer() {
-  const [tState, dispatch] = useReducer(splitTimerReducer, initialTimerState);
+  const [state, dispatch] = useReducer(splitTimerReducer, initialTimerState);
+  const { time, splits, status } = state;
 
   const onKeyPress = (e) => {
     const action = (action) => dispatch({ type: action });
-    const status = tState.status;
     switch (e.key.toUpperCase()) {
       case "ENTER":
       case "P": {
@@ -57,21 +57,21 @@ export default function SplitTimer() {
 
   useEffect(() => {
     let interval = null;
-    if (tState.status === statuses.RUNNING)
+    if (status === statuses.RUNNING)
       interval = setInterval(() => dispatch({ type: actions.TICK }), 10);
     else clearInterval(interval);
     return () => {
       clearInterval(interval);
     };
-  }, [tState.status]);
+  }, [status]);
 
   return (
     <>
       <div>
-        <TimeDisplay time={tState.time} />
-        <SplitsList splits={tState.splits} />
+        <TimeDisplay time={time} />
+        <SplitsList splits={splits} />
         <SplitTimerControls
-          status={tState.status}
+          status={status}
           onStart={() => dispatch({ type: actions.START })}
           onPauseResume={() => dispatch({ type: actions.PAUSE_RESUME })}
           onSplit={() => dispatch({ type: actions.SPLIT })}
