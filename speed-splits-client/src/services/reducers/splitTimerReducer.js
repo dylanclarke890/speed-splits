@@ -28,7 +28,7 @@ export const initialTimerState = {
   currentSplit: 0,
   currentTime: 0,
   timestampRef: 0,
-  recordedTimes: [],
+  recordedTimes: 0,
 };
 
 export function splitTimerReducer(state, action) {
@@ -43,7 +43,7 @@ export function splitTimerReducer(state, action) {
           [],
         currentTime = Storage.Get(Storage.Keys.CURRENT_TIME.id) || 0,
         currentSplit = Storage.Get(Storage.Keys.CURRENT_SPLIT.id) || 0,
-        recordedTimes = Storage.Get(Storage.Keys.RECORDED_TIMES.id) || [],
+        recordedTimes = Storage.Get(Storage.Keys.RECORDED_TIMES.id) || 0,
         status = Storage.Get(Storage.Keys.STATUS.id) || statuses.INITIAL,
         timestampRef = Storage.Get(Storage.Keys.TIMESTAMP_REF.id) || 0;
       newState = {
@@ -66,8 +66,7 @@ export function splitTimerReducer(state, action) {
     }
     case timerActions.TICK: {
       const msSinceRef = Time.now() - state.timestampRef;
-      const currentTime =
-        msSinceRef + state.recordedTimes.reduce((a, b) => a + b, 0);
+      const currentTime = msSinceRef + state.recordedTimes;
       newState = { ...state, currentTime };
       break;
     }
@@ -76,10 +75,7 @@ export function splitTimerReducer(state, action) {
         newState = {
           ...state,
           status: statuses.PAUSED,
-          recordedTimes: [
-            ...state.recordedTimes,
-            Time.now() - state.timestampRef,
-          ],
+          recordedTimes: state.recordedTimes + Time.now() - state.timestampRef,
         };
       }
       if (state.status === statuses.PAUSED) {
@@ -132,7 +128,7 @@ export function splitTimerReducer(state, action) {
         splits: state.splits.map((s) => ({ ...s, time: null })),
         currentSplit: 0,
         timestampRef: 0,
-        recordedTimes: [],
+        recordedTimes: 0,
       };
       Storage.DeleteAll();
       break;
