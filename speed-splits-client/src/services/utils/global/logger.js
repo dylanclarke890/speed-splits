@@ -3,7 +3,7 @@ import Storage from "./storage";
 
 /** Helper class for debugging. */
 export default class Logger {
-  static writeLogs = true;
+  static writeLogs = false;
 
   /** If empty, will log for all sources, actions and ids, else will only
       log for the specified params. */

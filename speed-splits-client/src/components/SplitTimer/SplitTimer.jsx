@@ -15,38 +15,7 @@ export default function SplitTimer() {
   const [state, dispatch] = useReducer(splitTimerReducer, initialTimerState);
   const { currentTime, splits, status } = state;
 
-  const onKeyPress = (e) => {
-    const action = (action) => dispatch({ type: action });
-    switch (e.key.toUpperCase()) {
-      case "ENTER":
-      case "P": {
-        if (status === statuses.RUNNING || status === statuses.PAUSED)
-          action(actions.PAUSE_RESUME);
-        else action(actions.START);
-        break;
-      }
-      case " ": {
-        if (status === statuses.PAUSED) action(actions.PAUSE_RESUME);
-        if (status === statuses.RUNNING) action(actions.SPLIT);
-        else action(actions.START);
-        break;
-      }
-      case "R": {
-        action(actions.RESET);
-        break;
-      }
-      case "U": {
-        action(actions.UNDO);
-        break;
-      }
-      case "ESCAPE": {
-        action(actions.STOP);
-        break;
-      }
-      default:
-        break;
-    }
-  };
+  const onKeyPress = (e) => dispatch({ type: actions.KEYPRESS, data: { e } });
   useOnInit(() => {
     dispatch({ type: actions.INITIALIZE });
     GlobalEvents.Add("keydown", onKeyPress);
