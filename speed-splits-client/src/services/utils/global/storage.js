@@ -1,5 +1,6 @@
 import Compare from "../objectHandling/compare";
 import { ArgumentNullError } from "./errors";
+import Logger from "./logger";
 
 export default class Storage {
   static Keys = {
@@ -90,33 +91,18 @@ export default class Storage {
     return key.temporary ? sessionStorage : localStorage;
   }
 
-  /** Set to true to enable logging. */
-  static #LOG_ACTIONS = true;
-
-  /** If empty, will log for all actions, else will only log for the specified actions. */
-  static #logForActions = [
-    /* e.g "getKey", ...*/
-  ];
-
-  /** If empty, will log for all ids, else will only log for the specified ids. */
-  static #logForIds = [
-    /* e.g "selectedRun" */
-    "selectedRun",
-  ];
-
-  /** Helper function for debugging. */
+  /** Passes calls to logging class. */
   static #log(action, id, value, msg) {
-    value = JSON.stringify(value);
-    const reqCount = this.#foundKeys[id]?.requestCount || 0;
-    const canLog =
-      this.#LOG_ACTIONS &&
-      (!this.#logForActions.length ||
-        this.#logForActions.some((val) => val === action)) &&
-      (!this.#logForIds.length || this.#logForIds.some((val) => val === id));
-
-    if (canLog) {
-      const log = `(${id}) ${action} - msg: ${msg}, val: ${value}, requestCount: ${reqCount}`;
-      console.info(log);
-    }
+    const requestCount = this.#foundKeys[id]?.requestCount || 0;
+    Logger.Info({
+      source: new Storage(),
+      action,
+      msg,
+      extraData: {
+        id,
+        value,
+        requestCount,
+      },
+    });
   }
 }
