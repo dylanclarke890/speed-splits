@@ -26,7 +26,7 @@ export const initialTimerState = {
   status: timerStatus.INITIAL,
   splits: [],
   currentSplit: 0,
-  time: 0,
+  currentTime: 0,
   timestampRef: 0,
   recordedTimes: [],
 };
@@ -36,28 +36,23 @@ export function splitTimerReducer(state, action) {
   let newState;
   switch (action.type) {
     case timerActions.INITIALIZE: {
-      let currentSplit = 0,
-        status = statuses.INITIAL,
-        time = 0,
-        timestampRef = 0,
-        recordedTimes = [];
-      let splits = Storage.Get(Storage.Keys.SPLITS.id);
-      if (!splits) {
-        splits = Storage.Get(Storage.Keys.SELECTED_RUN.id)?.splits || [];
-      } else {
-        currentSplit = Storage.Get(Storage.Keys.CURRENT_SPLIT.id) || 0;
-        status = Storage.Get(Storage.Keys.STATUS.id) || statuses.INITIAL;
-        time = Storage.Get(Storage.Keys.CURRENT_TIME.id) || 0;
+      const currentRun = Storage.Get(Storage.Keys.SELECTED_RUN.id) || 0,
+        splits =
+          Storage.Get(Storage.Keys.SPLITS.id) ||
+          (Storage.Get(Storage.Keys.RUNS.id) || [])[currentRun]?.splits ||
+          [],
+        currentTime = Storage.Get(Storage.Keys.CURRENT_TIME.id) || 0,
+        currentSplit = Storage.Get(Storage.Keys.CURRENT_SPLIT.id) || 0,
+        recordedTimes = Storage.Get(Storage.Keys.RECORDED_TIMES.id) || [],
+        status = Storage.Get(Storage.Keys.STATUS.id) || statuses.INITIAL,
         timestampRef = Storage.Get(Storage.Keys.TIMESTAMP_REF.id) || 0;
-        recordedTimes = Storage.Get(Storage.Keys.RECORDED_TIMES.id) || [];
-      }
       newState = {
-        time,
-        splits,
+        currentTime,
         currentSplit,
+        recordedTimes,
+        splits,
         status,
         timestampRef,
-        recordedTimes,
       };
       break;
     }
@@ -71,8 +66,9 @@ export function splitTimerReducer(state, action) {
     }
     case timerActions.TICK: {
       const msSinceRef = Time.now() - state.timestampRef;
-      const time = msSinceRef + state.recordedTimes.reduce((a, b) => a + b, 0);
-      newState = { ...state, time };
+      const currentTime =
+        msSinceRef + state.recordedTimes.reduce((a, b) => a + b, 0);
+      newState = { ...state, currentTime };
       break;
     }
     case timerActions.PAUSE_RESUME: {
@@ -102,7 +98,7 @@ export function splitTimerReducer(state, action) {
       }
       const splits = state.splits;
       const splitToAdd = splits.find((s) => s.order === state.currentSplit);
-      splitToAdd.time = state.time;
+      splitToAdd.time = state.currentTime;
       const currentSplit = state.currentSplit + 1;
       newState = {
         ...state,
@@ -132,7 +128,7 @@ export function splitTimerReducer(state, action) {
     case timerActions.RESET: {
       newState = {
         status: statuses.INITIAL,
-        time: 0,
+        currentTime: 0,
         splits: state.splits.map((s) => ({ ...s, time: null })),
         currentSplit: 0,
         timestampRef: 0,
@@ -153,16 +149,16 @@ export function splitTimerReducer(state, action) {
 }
 
 function saveStateChanges(oldState, newState) {
-  if (Compare.IsEqual(oldState.currentSplit, newState.currentSplit))
+  if (Compare.IsNotEqual(oldState.currentSplit, newState.currentSplit))
     Storage.AddOrUpdate(Storage.Keys.CURRENT_SPLIT.id, newState.currentSplit);
-  if (Compare.IsEqual(oldState.currentTime, newState.currentTime))
+  if (Compare.IsNotEqual(oldState.currentTime, newState.currentTime))
     Storage.AddOrUpdate(Storage.Keys.CURRENT_TIME.id, newState.currentTime);
-  if (Compare.IsEqual(oldState.splits, newState.splits))
+  if (Compare.IsNotEqual(oldState.splits, newState.splits))
     Storage.AddOrUpdate(Storage.Keys.SPLITS.id, newState.splits);
-  if (Compare.IsEqual(oldState.recordedTimes, newState.recordedTimes))
+  if (Compare.IsNotEqual(oldState.recordedTimes, newState.recordedTimes))
     Storage.AddOrUpdate(Storage.Keys.RECORDED_TIMES.id, newState.recordedTimes);
-  if (Compare.IsEqual(oldState.status, newState.status))
+  if (Compare.IsNotEqual(oldState.status, newState.status))
     Storage.AddOrUpdate(Storage.Keys.STATUS.id, newState.status);
-  if (Compare.IsEqual(oldState.timestampRef, newState.timestampRef))
+  if (Compare.IsNotEqual(oldState.timestampRef, newState.timestampRef))
     Storage.AddOrUpdate(Storage.Keys.TIMESTAMP_REF.id, newState.timestampRef);
 }

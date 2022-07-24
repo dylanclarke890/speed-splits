@@ -1,9 +1,30 @@
 export default class Compare {
+  static HasValue(obj) {
+    const objType = typeof obj;
+    switch (objType) {
+      case "undefined":
+        return false;
+      case "string":
+        return obj !== "";
+      case "number":
+      case "bigint":
+        return obj > 0;
+      case "boolean":
+        return obj;
+      case "object":
+        return obj !== null && obj !== undefined;
+      // unlikely this class will be needed for funcs and symbols
+      // so just return true as a default
+      default:
+        return true;
+    }
+  }
+
   static IsNull(obj) {
     return obj === null || obj === undefined;
   }
 
-  static HasValue(obj) {
+  static IsNotNull(obj) {
     return obj !== null && obj !== undefined;
   }
 
@@ -12,12 +33,32 @@ export default class Compare {
   }
 
   static IsEqual(a, b) {
-    return this.#comparePrimitive(JSON.stringify(a), JSON.stringify(b));
+    const aIsObj = this.#isObject(a),
+      bIsObj = this.#isObject(b);
+    a = aIsObj ? JSON.stringify(a) : a;
+    b = bIsObj ? JSON.stringify(b) : b;
+    return this.#comparePrimitive(a, b);
+  }
+
+  static IsNotEqual(a, b) {
+    const aIsObj = this.#isObject(a),
+      bIsObj = this.#isObject(b);
+    a = aIsObj ? JSON.stringify(a) : a;
+    b = bIsObj ? JSON.stringify(b) : b;
+    return !this.#comparePrimitive(a, b);
+  }
+
+  static IsNotEqualDeep(a, b) {
+    const aIsObj = this.#isObject(a),
+      bIsObj = this.#isObject(b);
+    return a != null && b != null && aIsObj && bIsObj
+      ? !this.#compareObjects(a, b)
+      : !this.#comparePrimitive(a, b);
   }
 
   static IsEqualDeep(a, b) {
-    const aIsObj = this.#isObject(a);
-    const bIsObj = this.#isObject(b);
+    const aIsObj = this.#isObject(a),
+      bIsObj = this.#isObject(b);
     return a != null && b != null && aIsObj && bIsObj
       ? this.#compareObjects(a, b)
       : this.#comparePrimitive(a, b);
