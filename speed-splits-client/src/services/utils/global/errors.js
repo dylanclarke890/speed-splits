@@ -1,19 +1,14 @@
-import { ErrorLog } from "./models";
-import Storage from "./storage";
+import Logger from "./logger";
 
 class BaseError extends Error {
   constructor(message) {
     super(message);
     this.name = this.constructor.name;
-    this.Log();
+    this.#log();
   }
 
-  Log() {
-    const currentErrors = Storage.Get(Storage.Keys.ERROR_LOG.id) || [];
-    Storage.AddOrUpdate([
-      ...currentErrors,
-      new ErrorLog(this.name, this.message, this.stack),
-    ]);
+  #log() {
+    Logger.LogError(this.name, this.message, this.stack);
   }
 }
 
