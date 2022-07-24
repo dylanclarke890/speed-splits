@@ -37,8 +37,13 @@ body {
   text-decoration: none;
 }
 
-.btn-red {
+.btn-red,
+.bg-red {
   background-color: #e42a2a;
+}
+
+.text-red {
+  color: #e42a2a;
 }
 
 .digits {
