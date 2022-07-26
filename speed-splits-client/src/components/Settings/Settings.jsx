@@ -3,11 +3,16 @@ import { useState, useEffect } from "react";
 import { defaultTimerKeyBinds } from "../../services/reducers/splitTimerReducer";
 import Storage from "../../services/utils/global/storage";
 import KeyBindSetting from "./KeyBindSetting/KeyBindSetting";
+import Dialog from "../Shared/Dialog/Dialog";
 
 export default function Settings() {
   const [keyBinds, setKeyBinds] = useState(defaultTimerKeyBinds);
   const [editingBind, setEditingBind] = useState("");
   const [initialized, setInitialized] = useState(false);
+  const [dlgSettings, setDlgSettings] = useState({
+    show: false,
+    message: "",
+  });
 
   useEffect(() => {
     setKeyBinds(Storage.Get(Storage.Keys.KEY_BINDS.id) || defaultTimerKeyBinds);
@@ -31,6 +36,32 @@ export default function Settings() {
 
   const updateBind = (e, id) => {
     const binds = { ...keyBinds };
+    for (let bindKey in binds) {
+      const bind = binds[bindKey];
+      if (bind.code === e.code && bindKey !== id) {
+        const newDlgSettings = {
+          show: true,
+          message: (
+            <p className="text-center">
+              Are you sure you want to assign {e.code} to{" "}
+              {binds[id].displayName}? Doing so will override your existing
+              setting for {bind.displayName}.
+            </p>
+          ),
+          onConfirm: () => {
+            binds[id].code = e.code;
+            setKeyBinds((_) => binds);
+            deleteBind(bindKey);
+            setDlgSettings((_) => ({ show: false, message: "" }));
+          },
+          onCancel: () => {
+            setDlgSettings((_) => ({ show: false, message: "" }));
+          },
+        };
+        setDlgSettings((_) => newDlgSettings);
+        return;
+      }
+    }
     binds[id].code = e.code;
     setKeyBinds((_) => binds);
   };
@@ -78,6 +109,14 @@ export default function Settings() {
           Reset all to default
         </button>
       </div>
+      {dlgSettings.show && (
+        <Dialog
+          content={dlgSettings.message}
+          onConfirm={dlgSettings.onConfirm}
+          onCancel={dlgSettings.onCancel}
+          small
+        />
+      )}
     </>
   );
 }
