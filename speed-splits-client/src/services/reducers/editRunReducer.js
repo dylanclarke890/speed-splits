@@ -10,7 +10,6 @@ export const editRunActions = {
   EDIT_ITEM: "editItem",
   EDIT_TITLE: "editTitle",
   DELETE_ITEM: "deleteItem",
-  DELETE_CONFIRMED: "deleteConfirmed",
   ORDER_ITEMS: "orderItems",
   ORDER_DRAG_START: "orderDrag",
   ORDER_DRAG_OVER: "orderDragOver",
@@ -18,6 +17,7 @@ export const editRunActions = {
   UPDATE: "update",
   CANCEL: "cancel",
   SAVE: "save",
+  CONFIRM: "confirm",
 };
 
 export const editRunStatus = {
@@ -105,19 +105,6 @@ export function editRunReducer(state, action) {
         ...state,
         selectedItem: action.data.i,
         status: statuses.DELETING,
-      };
-      break;
-    }
-    case editRunActions.DELETE_CONFIRMED: {
-      const splits = state.splits.filter((_, i) => i !== state.selectedItem);
-      const runs = state.runs;
-      runs[state.selectedRun].splits = splits;
-      newState = {
-        ...state,
-        runs,
-        splits,
-        selectedItem: -1,
-        status: statuses.INITIAL,
       };
       break;
     }
@@ -234,12 +221,30 @@ export function editRunReducer(state, action) {
       newState.status = statuses.INITIAL;
       break;
     }
-    case editRunActions.ORDER_DRAG_START:
+    case editRunActions.CONFIRM: {
+      const status = state.status;
+      if (status === statuses.DELETING) {
+        const splits = state.splits.filter((_, i) => i !== state.selectedItem);
+        const runs = state.runs;
+        runs[state.selectedRun].splits = splits;
+        newState = {
+          ...state,
+          runs,
+          splits,
+          selectedItem: -1,
+          status: statuses.INITIAL,
+        };
+      }
+      break;
+    }
+    case editRunActions.ORDER_DRAG_START: {
       newState = { ...state, selectedItem: action.data.i };
       break;
-    case editRunActions.ORDER_DRAG_OVER:
+    }
+    case editRunActions.ORDER_DRAG_OVER: {
       newState = { ...state, droppedItem: action.data.i };
       break;
+    }
     case editRunActions.ORDER_DROP: {
       const dragged = state.splits[state.selectedItem],
         dropped = state.splits[state.droppedItem];

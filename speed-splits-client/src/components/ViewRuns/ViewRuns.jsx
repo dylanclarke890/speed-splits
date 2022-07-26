@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { Run } from "../../services/utils/global/models";
 import Clone from "../../services/utils/objectHandling/clone";
 import Storage from "../../services/utils/global/storage";
+import Dialog from "../Shared/Dialog/Dialog";
 import "./ViewRuns.css";
 
 export default function ViewRuns() {
   const [runs, setRuns] = useState([]);
+  const [deletingId, setDeletingId] = useState(-1);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,9 +34,18 @@ export default function ViewRuns() {
   };
 
   const deleteRun = (i) => {
-    const run = runs[i];
+    setDeletingId((_) => i);
+  };
+
+  const cancelDeleteRun = () => {
+    setDeletingId((_) => -1);
+  };
+
+  const confirmDeleteRun = () => {
+    const run = runs[deletingId];
     const newRuns = runs.filter((r) => r !== run);
     setRuns((_) => [...newRuns]);
+    setDeletingId(-1);
   };
 
   return (
@@ -59,6 +70,19 @@ export default function ViewRuns() {
             </div>
           </div>
         ))}
+
+        {deletingId >= 0 && (
+          <Dialog
+            content={
+              <p className="text-center">
+                Are you sure you want to delete this run?
+              </p>
+            }
+            onConfirm={confirmDeleteRun}
+            onCancel={cancelDeleteRun}
+            small
+          />
+        )}
       </div>
     </>
   );

@@ -13,30 +13,24 @@ export default function ItemButtons({
   status,
   editItem,
   deleteItem,
-  deleteConfirm,
   save,
   cancel,
 }) {
   const buttons = {
     editItem: { name: "Edit", onClick: () => editItem(index) },
     deleteItem: { name: "Delete", onClick: () => deleteItem(index) },
-    deleteConfirm: { name: "Confirm", onClick: deleteConfirm },
     save: { name: "Save", onClick: save },
     cancel: { name: "Cancel", onClick: cancel },
   };
 
   const activeButtons = [];
-  const isSelected = index === selectedItem;
   switch (status) {
     case statuses.INITIAL:
       activeButtons.push(buttons.editItem, buttons.deleteItem);
       break;
     case statuses.EDITING:
-      if (isSelected) activeButtons.push(buttons.save, buttons.cancel);
-      break;
-    case statuses.DELETING:
-      if (isSelected)
-        activeButtons.push(activeButtons.push(buttons.save, buttons.cancel));
+      if (index === selectedItem)
+        activeButtons.push(buttons.save, buttons.cancel);
       break;
     default:
       break;
