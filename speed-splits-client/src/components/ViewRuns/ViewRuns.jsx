@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Run } from "../../services/utils/global/models";
 import Clone from "../../services/utils/objectHandling/clone";
 import Storage from "../../services/utils/global/storage";
-import "./ViewRuns.css";
 import Dialog from "../Shared/Dialog/Dialog";
+import "./ViewRuns.css";
 
 export default function ViewRuns() {
   const [runs, setRuns] = useState([]);

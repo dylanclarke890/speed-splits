@@ -9,6 +9,7 @@ import SplitDisplay from "../Splits/SplitDisplay/SplitDisplay";
 import ItemButtons from "./Controls/ItemButtons";
 import MainButtons from "./Controls/MainButtons";
 import AutoFocusTextInput from "../Shared/Inputs/AutoFocusInput";
+import Dialog from "../Shared/Dialog/Dialog";
 
 export default function EditRun() {
   const [state, dispatch] = useReducer(editRunReducer, initialEditRunState);
@@ -90,9 +91,6 @@ export default function EditRun() {
                 deleteItem={(i) =>
                   dispatch({ type: actions.DELETE_ITEM, data: { i } })
                 }
-                deleteConfirm={() =>
-                  dispatch({ type: actions.DELETE_CONFIRMED })
-                }
                 save={() => dispatch({ type: actions.SAVE })}
                 cancel={() => dispatch({ type: actions.CANCEL })}
               />
@@ -120,6 +118,18 @@ export default function EditRun() {
         save={() => dispatch({ type: actions.SAVE })}
         cancel={() => dispatch({ type: actions.CANCEL })}
       />
+      {status === statuses.DELETING && (
+        <Dialog
+          content={
+            <p className="text-center">
+              Are you sure you want to delete this segment?
+            </p>
+          }
+          onConfirm={() => dispatch({ type: actions.CONFIRM })}
+          onCancel={() => dispatch({ type: actions.CANCEL })}
+          small
+        />
+      )}
     </>
   );
 }
