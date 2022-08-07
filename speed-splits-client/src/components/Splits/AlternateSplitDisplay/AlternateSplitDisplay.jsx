@@ -1,18 +1,20 @@
 import React from "react";
-import { Time } from "../../../services/utils/dateTime/time";
+import { TimeFormatting } from "../../../services/utils/dateTime/time";
 
-export default function AlternateSplitDisplay({ split, onChange }) {
+export default function AlternateSplitDisplay({ settings, onChange }) {
   return (
     <>
       <div className="d-flex">
-        {showTime && (
+        {settings.showTime && (
           <div
             className={`digits digits-sm text-center d-flex place-i-center justify-center`}
           >
-            {Time.toString(split.time, "hour")}:
-            {Time.toString(split.time, "min")}:
-            {Time.toString(split.time, "sec")}
-            <span className="milli">.{Time.toString(split.time, "ms")}</span>
+            {TimeFormatting.toString(settings.split.time, "hour")}:
+            {TimeFormatting.toString(settings.split.time, "min")}:
+            {TimeFormatting.toString(settings.split.time, "sec")}
+            <span className="milli">
+              .{TimeFormatting.toString(settings.split.time, "ms")}
+            </span>
           </div>
         )}
         {editableTitle ? (
