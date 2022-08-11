@@ -1,16 +1,16 @@
+import { parseMilliseconds } from "dc-javascript-utils";
 import React from "react";
-import { Time } from "../../../services/utils/dateTime/time";
 
 export default function TimeDisplay({ time, small }) {
   const classes = `digits text-center d-flex place-i-center justify-center ${
     small ? "digits-sm" : null
   }`;
+  const timeObj = parseMilliseconds(time);
   return (
     <>
       <div className={classes}>
-        {Time.toString(time, "hour")}:{Time.toString(time, "min")}:
-        {Time.toString(time, "sec")}
-        <span className="milli">.{Time.toString(time, "ms")}</span>
+        {timeObj.hours}:{timeObj.minutes}:{timeObj.seconds}
+        <span className="milli">.{timeObj.milliseconds}</span>
       </div>
     </>
   );

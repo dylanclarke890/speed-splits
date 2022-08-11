@@ -34,7 +34,7 @@ export class FormatError extends BaseError {
     super(message);
   }
 }
-export class ArgumentException extends BaseError {
+export class ArgumentError extends BaseError {
   constructor(msg, parameterName) {
     if (parameterName) msg = `${msg} Parameter: ${parameterName}`;
     super(msg);
